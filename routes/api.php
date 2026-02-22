@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Setores\RecebimentoController;
 use App\Http\Controllers\Api\RecebimentoApiController;
@@ -25,7 +26,23 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         ]);
     });
 
-    // endpoints futuros
+    Route::get('/me', function (Request $request) {
+        $user = $request->user();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Usuario autenticado.',
+            'data' => [
+                'id' => $user->id_user ?? $user->id,
+                'nome' => $user->nome,
+                'email' => $user->email,
+                'tipo' => $user->tipo ?? null,
+                'unidade_id' => $user->unidade_id ?? null,
+                'nivel' => $user->nivel ?? null,
+            ],
+            'meta' => (object) [],
+        ]);
+    });
 });
 
 Route::post('/contagem-livre', [ContagemLivreController::class, 'store'])->middleware('auth:sanctum');
