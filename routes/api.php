@@ -15,14 +15,26 @@ use App\Http\Controllers\ContagemLivreController;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
+Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
+    Route::get('/', function () {
+        return response()->json([
+            'success' => true,
+            'message' => 'API v1',
+            'data' => (object) [],
+            'meta' => (object) [],
+        ]);
+    });
 
-Route::post('/contagem-livre', [ContagemLivreController::class, 'store']);
+    // endpoints futuros
+});
+
+Route::post('/contagem-livre', [ContagemLivreController::class, 'store'])->middleware('auth:sanctum');
 
 Route::prefix('armazenagem')->group(function () {
     Route::get('/buscarDescricaoApi', [ArmazenagemController::class, 'buscarDescricaoApi']);
     Route::get('/buscarPosicoes', [ArmazenagemController::class, 'buscarPosicoes']);
-    Route::post('/store', [ArmazenagemController::class, 'store']);
-    Route::post('/store-api', [ArmazenagemController::class, 'storeApi']);
+    Route::post('/store', [ArmazenagemController::class, 'store'])->middleware('auth:sanctum');
+    Route::post('/store-api', [ArmazenagemController::class, 'storeApi'])->middleware('auth:sanctum');
 
 
 });
@@ -34,18 +46,18 @@ Route::prefix('contagem-livre')->group(function () {
     Route::get('/buscarDescricaoApi', [ContagemLivreController::class, 'buscarDescricaoApi']);
 
     // Salvar contagem livre (POST /api/contagem-livre/store)
-    Route::post('/store', [ContagemLivreController::class, 'store']);
+    Route::post('/store', [ContagemLivreController::class, 'store'])->middleware('auth:sanctum');
 });
 
 Route::get('/apontamentos/hoje', function () {
     $hoje = Carbon::today();
 
-    // 🔹 Meta = total de etiquetas/paletes gerados no dia
+    // Meta = total de etiquetas/paletes gerados no dia
     $meta = DB::table('_tb_apontamentos_kits')
         ->whereDate('data', $hoje)
         ->count();
 
-    // 🔹 Buscar apontamentos de hoje
+    // Buscar apontamentos de hoje
     $apontamentos = DB::table('_tb_apontamentos_kits')
         ->whereDate('data', $hoje)
         ->orderBy('updated_at')
@@ -70,7 +82,7 @@ Route::get('/apontamentos/hoje', function () {
 });
 
 Route::get('/apontamentos/ultimos', [KitMontagemController::class, 'apiUltimosApontamentos']);
-Route::post('/apontamento', [KitMontagemController::class, 'apiApontarPorEtiqueta']);
+Route::post('/apontamento', [KitMontagemController::class, 'apiApontarPorEtiqueta'])->middleware('auth:sanctum');
 
 Route::post('/login-microsoft', [MicrosoftApiController::class, 'loginFromApp']);
 
@@ -80,7 +92,7 @@ Route::post('/login', [AuthController::class, 'apiLogin']);
 // Rotas protegidas por Sanctum
 Route::middleware('auth:sanctum')->group(function () {
 
-    // ðŸ“¦ Rotas de Recebimento (API)
+    // Rotas de Recebimento (API)
     Route::get('/recebimentos', [RecebimentoApiController::class, 'listar']);
     Route::get('/recebimentos/{id}', [RecebimentoApiController::class, 'detalhes']);
     Route::post('/recebimentos/{id}/foto-inicio', [RecebimentoApiController::class, 'uploadFotoInicio']);
@@ -94,21 +106,22 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
 
-    // ðŸ“‹ Rotas de ConferÃªncia (API)
+    // Rotas de Conferencia (API)
     Route::get('/recebimentos/{id}/itens', [ConferenciaApiController::class, 'listarItens']);
     Route::get('/conferencia/item/{id}', [ConferenciaApiController::class, 'detalheItem']);
     Route::post('/conferencia/item/{id}', [ConferenciaApiController::class, 'salvarItem']);
     Route::post('/recebimentos/{id}/fechar', [ConferenciaApiController::class, 'fecharConferencia']);
 });
 
-// Rotas para uso no painel web (nÃ£o precisam do Sanctum)
+// Rotas para uso no painel web (nao precisam do Sanctum)
 Route::get('/painel/recebimentos', [RecebimentoController::class, 'listar']);
 
 
-// Rotas sem autenticação
+// Rotas sem autenticacao
 Route::get('/demandas', [DemandaController::class, 'index']);
 Route::get('/demandas/{id}', [DemandaController::class, 'show']);
-Route::post('/demandas/{id}/status', [DemandaController::class, 'atualizarStatus']);
 Route::get('/demandas/{id}/historico', [DemandaController::class, 'historico']);
 
-Route::put('/demandas/{id}', [DemandaController::class, 'update']);
+Route::put('/demandas/{id}', [DemandaController::class, 'update'])->middleware('auth:sanctum');
+Route::post('/demandas/{id}/status', [DemandaController::class, 'atualizarStatus'])->middleware('auth:sanctum');
+
