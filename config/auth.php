@@ -41,6 +41,7 @@ return [
         'provider' => 'users',
         ],
     
+        // API requests use Sanctum tokens backed by the same users provider.
         'api' => [
             'driver' => 'sanctum',
             'provider' => 'users',
