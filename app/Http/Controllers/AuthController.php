@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use App\Models\User;
 
 class AuthController extends Controller
 {
@@ -23,121 +23,138 @@ class AuthController extends Controller
             return back()->with('error', 'Preencha todos os campos.');
         }
 
-        $usuario = User::where('email', $credentials['email'])->first();
+        if (! Auth::attempt($credentials)) {
+            $usuario = User::where('email', $credentials['email'])->first();
 
-        $logBase = [
-            'usuario_id' => $usuario->id_user ?? null,
-            'unidade_id' => $usuario->unidade_id ?? null,
-            'dados'      => json_encode(['email' => $credentials['email']]),
-            'ip_address' => $request->ip(),
-            'navegador'  => $request->header('User-Agent'),
-            'created_at' => now()
-        ];
+            if ($usuario?->id_user && $usuario->unidade_id) {
+                $this->insertUserLog(
+                    (int) $usuario->id_user,
+                    (int) $usuario->unidade_id,
+                    'login - falhou',
+                    ['email' => $credentials['email']],
+                    $request
+                );
+            }
 
-        if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
-
-            session([
-                'user_id' => $usuario->id_user,
-                'nome'    => $usuario->nome,
-                'tipo'    => $usuario->tipo,
-                'unidade' => $usuario->unidade_id,
-                'nivel'   => $usuario->nivel
-            ]);
-
-            DB::table('_tb_user_logs')->insert(array_merge($logBase, [
-                'acao' => 'login - sucesso'
-            ]));
-
-            return $usuario->tipo === 'operador'
-                ? redirect()->route('painel.operador')
-                : redirect()->intended('/dashboard');
+            return back()->with('error', 'Login ou senha invalido');
         }
 
-        DB::table('_tb_user_logs')->insert(array_merge($logBase, [
-            'acao' => 'login - falhou'
-        ]));
+        $request->session()->regenerate();
 
-        return back()->with('error', 'Login ou senha inválido');
+        $usuario = Auth::user();
+
+        session([
+            'user_id' => $usuario->id_user,
+            'nome' => $usuario->nome,
+            'tipo' => $usuario->tipo,
+            'unidade' => $usuario->unidade_id,
+            'nivel' => $usuario->nivel,
+        ]);
+
+        if ($usuario->id_user && $usuario->unidade_id) {
+            $this->insertUserLog(
+                (int) $usuario->id_user,
+                (int) $usuario->unidade_id,
+                'login - sucesso',
+                ['email' => $usuario->email],
+                $request
+            );
+        }
+
+        return $usuario->tipo === 'operador'
+            ? redirect()->route('painel.operador')
+            : redirect()->intended('/dashboard');
     }
 
     public function logout(Request $request)
     {
         $user = Auth::user();
 
-        DB::table('_tb_user_logs')->insert([
-            'usuario_id' => $user->id_user,
-            'unidade_id' => $user->unidade_id,
-            'acao'       => 'logout',
-            'dados'      => '[LOGOUT] - Usuário saiu manualmente do sistema.',
-            'ip_address' => $request->ip(),
-            'created_at' => now()
-        ]);
+        if (! $user) {
+            return redirect()->route('login')->with('info', 'Sessao ja encerrada.');
+        }
+
+        if ($user->id_user && $user->unidade_id) {
+            $this->insertUserLog(
+                (int) $user->id_user,
+                (int) $user->unidade_id,
+                'logout',
+                ['message' => 'Usuario saiu manualmente do sistema.'],
+                $request
+            );
+        }
 
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('login')->with('success', 'Você saiu do sistema com sucesso!');
+        return redirect()->route('login')->with('success', 'Voce saiu do sistema com sucesso!');
     }
 
     public function apiLogin(Request $request)
-{
-    $credentials = $request->only('email', 'password');
+    {
+        $credentials = $request->only('email', 'password');
 
-    if (empty($credentials['email']) || empty($credentials['password'])) {
-        return response()->json(['message' => 'Preencha todos os campos.'], 422);
-    }
+        if (empty($credentials['email']) || empty($credentials['password'])) {
+            return response()->json(['message' => 'Preencha todos os campos.'], 422);
+        }
 
-    $user = User::where('email', $credentials['email'])->first();
+        $user = User::where('email', $credentials['email'])->first();
 
-    if (!$user || !Hash::check($credentials['password'], $user->password)) {
-        DB::table('_tb_user_logs')->insert([
-            'usuario_id' => $user->id_user ?? null,
-            'unidade_id' => $user->unidade_id ?? null,
-            'acao'       => 'login_api - falhou',
-            'dados'      => json_encode(['email' => $credentials['email']]),
-            'ip_address' => $request->ip(),
-            'navegador'  => $request->header('User-Agent'),
-            'created_at' => now()
+        if (! $user || ! Hash::check($credentials['password'], $user->password)) {
+            if ($user?->id_user && $user->unidade_id) {
+                $this->insertUserLog(
+                    (int) $user->id_user,
+                    (int) $user->unidade_id,
+                    'login_api - falhou',
+                    ['email' => $credentials['email']],
+                    $request
+                );
+            }
+
+            return response()->json(['message' => 'Credenciais invalidas'], 401);
+        }
+
+        $token = $user->createToken('app_token')->plainTextToken;
+
+        $this->insertUserLog(
+            (int) $user->id_user,
+            (int) $user->unidade_id,
+            'login_app - sucesso',
+            ['email' => $user->email],
+            $request
+        );
+
+        $this->insertUserLog(
+            (int) $user->id_user,
+            (int) $user->unidade_id,
+            'login - sucesso',
+            ['email' => $user->email],
+            $request
+        );
+
+        return response()->json([
+            'token' => $token,
+            'user' => [
+                'id' => $user->id_user,
+                'nome' => $user->nome,
+                'tipo' => $user->tipo,
+                'unidade' => $user->unidade_id,
+                'nivel' => $user->nivel,
+            ],
         ]);
-
-        return response()->json(['message' => 'Credenciais inválidas'], 401);
     }
 
-    // 🔑 Gera token Sanctum
-    $token = $user->createToken('app_token')->plainTextToken;
-
-    // 🔹 Base do log (reutilizável)
-    $logBase = [
-        'usuario_id' => $user->id_user,
-        'unidade_id' => $user->unidade_id,
-        'dados'      => json_encode(['email' => $user->email]),
-        'ip_address' => $request->ip(),
-        'navegador'  => $request->header('User-Agent'),
-        'created_at' => now()
-    ];
-
-    // 🔹 Registra login via API
-    DB::table('_tb_user_logs')->insert(array_merge($logBase, [
-        'acao' => 'login_app - sucesso'
-    ]));
-
-    // 🔹 Registra login geral
-    DB::table('_tb_user_logs')->insert(array_merge($logBase, [
-        'acao' => 'login - sucesso'
-    ]));
-
-    return response()->json([
-        'token' => $token,
-        'user'  => [
-            'id'      => $user->id_user,
-            'nome'    => $user->nome,
-            'tipo'    => $user->tipo,
-            'unidade' => $user->unidade_id,
-            'nivel'   => $user->nivel
-        ]
-    ]);
-}
-
+    private function insertUserLog(int $usuarioId, int $unidadeId, string $acao, array $dados, Request $request): void
+    {
+        DB::table('_tb_user_logs')->insert([
+            'usuario_id' => $usuarioId,
+            'unidade_id' => $unidadeId,
+            'acao' => $acao,
+            'dados' => json_encode($dados, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+            'ip_address' => $request->ip(),
+            'navegador' => $request->header('User-Agent'),
+            'created_at' => now(),
+        ]);
+    }
 }
