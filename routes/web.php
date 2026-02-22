@@ -112,9 +112,9 @@ Route::prefix('etiquetas')->group(function () {
 });
 
 Route::prefix('transferencias/etiquetas')->group(function () {
-    Route::get('/', [TransferenciaEtiquetaController::class, 'index'])->name('transferencia.etiquetas.index');
-    Route::get('/{id}/visualizar', [TransferenciaEtiquetaController::class, 'visualizar'])->name('transferencia.etiquetas.visualizar');
-    Route::get('/{id}/imprimir-tudo', [TransferenciaEtiquetaController::class, 'imprimirTudo'])->name('transferencia.etiquetas.imprimirTudo');
+    Route::get('/', [TransferenciaEtiquetaController::class, 'index'])->name('transferencia.etiquetas.index.legacy');
+    Route::get('/{id}/visualizar', [TransferenciaEtiquetaController::class, 'visualizar'])->name('transferencia.etiquetas.visualizar.legacy');
+    Route::get('/{id}/imprimir-tudo', [TransferenciaEtiquetaController::class, 'imprimirTudo'])->name('transferencia.etiquetas.imprimirTudo.legacy');
     Route::get('/{id}/reimprimir', [TransferenciaEtiquetaController::class, 'reimprimir'])->name('transferencia.etiquetas.reimprimir');
 });
 });
@@ -149,7 +149,7 @@ Route::get('/demandas/import', function () {
 Route::prefix('demandas')->group(function () {
     Route::get('/', [DemandaController::class, 'index'])->name('demandas.index');
     Route::get('/create', [DemandaController::class, 'create'])->name('demandas.create');
-    Route::post('/store', [DemandaController::class, 'store'])->name('demandas.store');
+    Route::post('/store', [DemandaController::class, 'store'])->name('demandas.store.manual');
 });
 
 Route::resource('demandas', DemandaController::class)->except(['show']);
@@ -292,7 +292,7 @@ Route::middleware(['auth'])->group(function () {
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/inventario/upload', [InventarioController::class, 'uploadForm'])->name('inventario.upload');
-    Route::post('/inventario/importar', [InventarioController::class, 'importarMB51'])->name('inventario.importar');
+    Route::post('/inventario/importar', [InventarioController::class, 'importarMB51'])->name('inventario.importar.mb51');
 });
 
 Route::put('/kit/programar/{id}', [KitMontagemController::class, 'updateProgramacao'])->name('kit.atualizar');
@@ -445,17 +445,17 @@ Route::get('/separacoes/linha/{id}', [SeparacaoController::class, 'linha'])->nam
 Route::get('/separacoes/linha/{id}', [SeparacaoController::class, 'linha'])->name('separacoes.linha');
 Route::post('/separacoes/store', [SeparacaoController::class, 'store'])->name('separacoes.store');
 
-Route::get('/setores/separacao/separacoes', [SeparacaoController::class, 'listarEmAndamento'])->name('separacoes.andamento');
+Route::get('/setores/separacao/separacoes', [SeparacaoController::class, 'listarEmAndamento'])->name('separacoes.andamento.setores');
 
 
 Route::get('/separacoes/separar/{id}', [ExecutarSeparacaoController::class, 'separarItem'])->name('separacoes.separar_item');
-Route::post('/separacoes/separar/{id}', [ExecutarSeparacaoController::class, 'executar'])->name('separacoes.executar');
+Route::post('/separacoes/separar/{id}', [ExecutarSeparacaoController::class, 'executar'])->name('separacoes.executar.legacy_id');
 Route::get('/separacoes/andamento', [SeparacaoController::class, 'index'])->name('separacoes.andamento');
 
 
 Route::get('/separacoes/separar/{item_id}', [ExecutarSeparacaoController::class, 'mostrarFormSeparar'])->name('separacoes.form');
 Route::get('/separacoes/separar/{item_id}', [ExecutarSeparacaoController::class, 'mostrarFormSeparar'])->name('separacoes.form');
-Route::post('/separacoes/separar/{item_id}', [ExecutarSeparacaoController::class, 'executar'])->name('separacoes.executar');
+Route::post('/separacoes/separar/{item_id}', [ExecutarSeparacaoController::class, 'executar'])->name('separacoes.executar.legacy_item');
 
 
 Route::get('/separacoes/itens/{pedido_id}', [SeparacaoController::class, 'verItensSeparacao'])->name('separacoes.itens');
@@ -497,7 +497,7 @@ Route::prefix('separacoes')->middleware('auth')->group(function () {
     Route::post('/salvar-pedido', [SeparacaoController::class, 'salvarPedido'])->name('separacoes.salvarPedido');
     Route::get('/{pedido_id}/nova', [SeparacaoController::class, 'novaSeparacao'])->name('separacoes.nova');
     Route::post('/{pedido_id}/salvar', [SeparacaoController::class, 'salvarSeparacao'])->name('separacoes.salvarSeparacao');
-    Route::get('/{id}/detalhes', [SeparacaoController::class, 'mostrarSeparacao'])->name('separacoes.show');
+    Route::get('/{id}/detalhes', [SeparacaoController::class, 'mostrarSeparacao'])->name('separacoes.show.detalhes');
 });
 
 
@@ -517,11 +517,11 @@ Route::get('/setores/recebimento/painel/{id}', [RecebimentoController::class, 'd
 
 
 
-Route::get('setores/conferencia/item/{recebimento_id}/{item_id}/conferir', [ConferenciaController::class, 'formConferirItem'])->name('setores.conferencia.formConferirItem');
+Route::get('setores/conferencia/item/{recebimento_id}/{item_id}/conferir', [ConferenciaController::class, 'formConferirItem'])->name('setores.conferencia.formConferirItem.legacy_a');
 
 // Exibir o formulário de conferência do item (GET)
 Route::get('setores/conferencia/{recebimento_id}/item/{item_id}/conferir', [ConferenciaController::class, 'formConferirItem'])
-    ->name('setores.conferencia.formConferirItem');
+    ->name('setores.conferencia.formConferirItem.legacy_b');
 
 // Salvar os dados da conferência do item (POST)
 Route::post('setores/conferencia/{recebimento_id}/item/{item_id}/conferir', [ConferenciaController::class, 'salvarConferenciaItem'])
@@ -576,7 +576,7 @@ Route::middleware(['auth'])->prefix('setores/conferencia')->group(function () {
 
 
 Route::middleware('auth')->group(function () {
-    Route::post('/setores/conferencia/item/{id}/conferir', [ConferenciaController::class, 'contar'])->name('setores.conferencia.contar');
+    Route::post('/setores/conferencia/item/{id}/conferir', [ConferenciaController::class, 'contar'])->name('setores.conferencia.contar.item');
 });
 
 
@@ -688,7 +688,7 @@ Route::prefix('setores')->middleware('auth')->group(function () {
     Route::prefix('recebimento')->group(function () {
         Route::get('/painel', [RecebimentoController::class, 'painel'])->name('setores.recebimento.painel');
         Route::get('/novo', [RecebimentoController::class, 'create'])->name('setores.recebimento.create');
-        Route::post('/store', [RecebimentoController::class, 'store'])->name('setores.recebimento.store'); // 👈 ESSA LINHA
+        Route::post('/store', [RecebimentoController::class, 'store'])->name('setores.recebimento.store.legacy'); // 👈 ESSA LINHA
     });
 });
 
@@ -706,15 +706,15 @@ Route::post('/setores/conferencia/{id}/finalizar', [ConferenciaController::class
 Route::post('/setores/conferencia/item/{id}/conferir', [ConferenciaController::class, 'conferirItem'])->name('setores.conferencia.item.conferir');
 Route::post('/setores/conferencia/{id}/iniciar', [ConferenciaController::class, 'salvarFotoInicio'])->name('setores.conferencia.iniciar');
 Route::get('/setores/conferencia/{id}/foto', [ConferenciaController::class, 'telaFotoInicio'])->name('setores.conferencia.foto');
-Route::post('/setores/conferencia/{id}/contar', [ConferenciaController::class, 'contar'])->name('setores.conferencia.contar');
+Route::post('/setores/conferencia/{id}/contar', [ConferenciaController::class, 'contar'])->name('setores.conferencia.contar.legacy_a');
 
 
-Route::post('/setores/conferencia/item/{id}/conferir', [ConferenciaController::class, 'contar'])->name('setores.conferencia.contar');
+Route::post('/setores/conferencia/item/{id}/conferir', [ConferenciaController::class, 'contar'])->name('setores.conferencia.contar.item');
 
 
 
 Route::middleware(['auth'])->group(function () {
-    Route::post('/setores/conferencia/{id}/contar', [ConferenciaController::class, 'contar'])->name('setores.conferencia.contar');
+    Route::post('/setores/conferencia/{id}/contar', [ConferenciaController::class, 'contar'])->name('setores.conferencia.contar.legacy_a');
 });
 
 
@@ -736,11 +736,11 @@ Route::prefix('contagem')->middleware('auth')->group(function () {
 */
 Route::prefix('demandas')->middleware('auth')->group(function () {
     Route::get('/{id}/edit', [\App\Http\Controllers\DemandaController::class, 'edit'])
-        ->name('demandas.edit'); // TODO: criar método edit se não existir
+        ->name('demandas.edit.legacy'); // TODO: criar método edit se não existir
     Route::put('/{id}', [\App\Http\Controllers\DemandaController::class, 'update'])
-        ->name('demandas.update');
+        ->name('demandas.update.legacy');
     Route::delete('/{id}', [\App\Http\Controllers\DemandaController::class, 'destroy'])
-        ->name('demandas.destroy'); // TODO: criar método destroy se não existir
+        ->name('demandas.destroy.legacy'); // TODO: criar método destroy se não existir
 });
 
 /*
@@ -790,9 +790,9 @@ Route::prefix('kits')->middleware('auth')->group(function () {
 */
 Route::prefix('recebimento')->middleware('auth')->group(function () {
     Route::get('/imprimir-tudo', [\App\Http\Controllers\RecebimentoEtiquetaController::class, 'imprimirTudo'])
-        ->name('recebimento.imprimirTudo');
+        ->name('recebimento.imprimirTudo.legacy');
     Route::get('/reimprimir', [\App\Http\Controllers\RecebimentoEtiquetaController::class, 'reimprimir'])
-        ->name('recebimento.reimprimir');
+        ->name('recebimento.reimprimir.legacy');
 });
 
 /*
@@ -806,3 +806,7 @@ Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->na
 Route::post('/register', [RegisterController::class, 'register']);
 
 // Caso não queira, pode simplesmente remover as chamadas a route('register') nos Blades.
+
+
+require __DIR__ . '/web/auth.php';
+
