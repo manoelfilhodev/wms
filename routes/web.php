@@ -52,6 +52,19 @@ use App\Http\Controllers\Setores\{
     RecebimentoItemController
 };
 
+Route::get('/imprimir-tudo/{recebimento_id}', [RecebimentoEtiquetaController::class, 'imprimirTudo'])->name('imprimir-tudo');
+
+Route::prefix('setores/recebimento')->name('setores.recebimento.')->group(function () {
+    Route::get('/novo', [RecebimentoController::class, 'create'])->name('create');
+    Route::post('/', [RecebimentoController::class, 'store'])->name('store');
+
+    // NOVA rota para processar XML
+    Route::post('/parse-xml', [RecebimentoController::class, 'parseXml'])->name('parseXml');
+    Route::post('/setores/recebimento/parse-xml', [RecebimentoController::class, 'parseXml']);
+
+    // Se existir um painel:
+    Route::get('/painel', [RecebimentoController::class, 'index'])->name('painel');
+});
 
 Route::prefix('transferencias')->group(function () {
     
@@ -573,7 +586,7 @@ Route::post('/setores/conferencia/{id}/salvar-foto', [ConferenciaController::cla
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
-Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::get('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 
 Route::middleware(['auth'])->group(function () {
 
