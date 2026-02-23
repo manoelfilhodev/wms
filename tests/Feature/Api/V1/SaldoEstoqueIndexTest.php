@@ -38,7 +38,7 @@ class SaldoEstoqueIndexTest extends TestCase
         $unidade = $this->ensureUnidade();
 
         $materialA = $this->createMaterial($unidade, 'SKU-FILTRO-A', 'Parafuso A');
-        $posicaoA = $this->createPosicao($unidade, 'A-01-01');
+        $posicaoA = $this->createPosicao($unidade, 'A-01-01-' . uniqid());
         DB::table('_tb_saldo_estoque')->insert([
             'sku_id' => $materialA,
             'material_id' => $materialA,
@@ -51,7 +51,7 @@ class SaldoEstoqueIndexTest extends TestCase
         ]);
 
         $materialB = $this->createMaterial($unidade, 'SKU-FILTRO-B', 'Parafuso B');
-        $posicaoB = $this->createPosicao($unidade, 'A-01-02');
+        $posicaoB = $this->createPosicao($unidade, 'A-01-02-' . uniqid());
         DB::table('_tb_saldo_estoque')->insert([
             'sku_id' => $materialB,
             'material_id' => $materialB,
