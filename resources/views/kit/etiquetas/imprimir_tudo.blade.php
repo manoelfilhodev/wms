@@ -7,7 +7,7 @@
         @foreach($apontamentos as $a)
             <div class="etiqueta">
                 {{-- Título --}}
-                <div class="linha titulo">DEXCO – CAJ</div>
+                <div class="linha titulo">PRODUÇÃO</div>
                 <div class="linha divisor"></div>
 
                 {{-- SKU e descrição --}}

@@ -179,7 +179,7 @@ endpoints:
         name: sort
         description: ''
         required: false
-        example: descricao
+        example: updated_at
         type: string
         enumValues:
           - id
@@ -279,7 +279,7 @@ endpoints:
         name: updated_from
         description: validation.date.
         required: false
-        example: '2026-02-22T21:58:58'
+        example: '2026-02-22T22:11:29'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -298,7 +298,7 @@ endpoints:
     cleanBodyParameters:
       page: 16
       per_page: 22
-      sort: descricao
+      sort: updated_at
       direction: asc
       sku: g
       material: 66
@@ -307,7 +307,7 @@ endpoints:
       posicao: 'y'
       min_qtd: 60
       max_qtd: 42
-      updated_from: '2026-02-22T21:58:58'
+      updated_from: '2026-02-22T22:11:29'
       updated_to: '2052-03-17'
     fileParameters: []
     responses:

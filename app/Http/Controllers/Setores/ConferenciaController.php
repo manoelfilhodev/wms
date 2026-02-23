@@ -25,7 +25,7 @@ class ConferenciaController extends Controller
     }
 
     return view('setores.conferencia.ressalva', compact('recebimento'));
-}
+} 
     
     public function salvarRessalva(Request $request, $id)
 {
@@ -270,29 +270,27 @@ class ConferenciaController extends Controller
 public function salvarFotoInicio(Request $request, $id)
 {
     $request->validate([
-        'foto' => 'required|image|max:5120',
+        'foto' => 'required|image|mimes:jpeg,jpg,png|max:5120',
     ]);
 
-    // Caminho relativo que queremos no public
     $pasta = public_path('recebimento/fotos_inicio');
-
-    // Cria a pasta se não existir
     if (!file_exists($pasta)) {
         mkdir($pasta, 0755, true);
     }
 
-    // Nome único
     $nomeArquivo = uniqid() . '.' . $request->file('foto')->getClientOriginalExtension();
-
-    // Move o arquivo para a pasta
     $request->file('foto')->move($pasta, $nomeArquivo);
 
-    // Salva caminho relativo no banco
+    $relativo = "recebimento/fotos_inicio/{$nomeArquivo}";
+
     DB::table('_tb_recebimento')
         ->where('id', $id)
-        ->update(['foto_inicio_veiculo' => "recebimento/fotos_inicio/{$nomeArquivo}"]);
+        ->update(['foto_inicio_veiculo' => $relativo, 'updated_at' => now()]);
 
-    return response()->json(['ok' => true, 'path' => "recebimento/fotos_inicio/{$nomeArquivo}"], 200);
+    // Redireciona para os itens (ou volte para a mesma página com success)
+    return redirect()
+        ->route('setores.conferencia.itens', $id)
+        ->with('success', 'Foto inicial salva com sucesso.');
 }
 
 
