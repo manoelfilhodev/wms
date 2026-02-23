@@ -12,7 +12,7 @@ use App\Http\Controllers\Api\DemandaController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Setores\ArmazenagemController;
 use App\Http\Controllers\ContagemLivreController;
-use App\Http\Controllers\API\V1\SaldoEstoqueController;
+use App\Http\Controllers\Api\V1\SaldoEstoqueController;
 
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
