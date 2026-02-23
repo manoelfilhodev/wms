@@ -1,13 +1,21 @@
-# API v1 - Saldo de Estoque
+﻿# API v1 - WMS
 
 ## Auth
 Todos os endpoints de `v1` usam `auth:sanctum`.
 
 ### Login (gera token)
 ```bash
-curl -X POST "http://localhost:8000/api/login" \
+curl -X POST "http://localhost:8000/api/v1/auth/login" \
   -H "Content-Type: application/json" \
   -d '{"email":"usuario@example.com","password":"Secret123!"}'
+```
+
+### Meu usuario autenticado
+`GET /api/v1/me`
+
+```bash
+curl "http://localhost:8000/api/v1/me" \
+  -H "Authorization: Bearer <TOKEN>"
 ```
 
 ## Endpoints
@@ -15,7 +23,7 @@ curl -X POST "http://localhost:8000/api/login" \
 ### Listar saldo de estoque
 `GET /api/v1/saldo-estoque`
 
-Par�metros de query:
+Parâmetros de query:
 - `page` (default `1`)
 - `per_page` (default `15`, max `100`)
 - `sort`: `id|quantidade|created_at|updated_at|sku|descricao|posicao|unidade_id`
@@ -56,4 +64,25 @@ curl -X PATCH "http://localhost:8000/api/v1/saldo-estoque/1" \
   -H "Authorization: Bearer <TOKEN>" \
   -H "Content-Type: application/json" \
   -d '{"quantidade": 150}'
+```
+
+## Painel de Documentacao (Scribe)
+
+### Gerar docs
+```bash
+php artisan scribe:generate
+```
+
+### Acesso local
+Painel navegavel em:
+- `/api/docs`
+- `/api/docs.postman`
+- `/api/docs.openapi`
+
+### Habilitar em producao
+Por padrao, fora de `APP_ENV=local`, a rota `/api/docs` responde `404`.
+
+Para habilitar explicitamente:
+```dotenv
+API_DOCS_ENABLED=true
 ```
