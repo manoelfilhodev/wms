@@ -14,6 +14,25 @@ class SaldoEstoqueController extends Controller
 {
     use ApiResponseTrait;
 
+    /**
+     * Lista saldos de estoque
+     *
+     * @group Saldo de Estoque
+     * @authenticated
+     *
+     * @queryParam page integer Pagina atual. Example: 1
+     * @queryParam per_page integer Itens por pagina (max 100). Example: 15
+     * @queryParam sort string Campo de ordenacao (id,quantidade,created_at,updated_at,sku,descricao,posicao,unidade_id). Example: updated_at
+     * @queryParam direction string Direcao da ordenacao (asc|desc). Example: desc
+     * @queryParam sku string Filtro parcial por SKU. Example: ABC
+     * @queryParam descricao string Filtro parcial por descricao. Example: PARAFUSO
+     * @queryParam unidade integer Filtro por unidade. Example: 1
+     * @queryParam posicao string|integer Filtro por posicao (id ou codigo). Example: A01
+     * @queryParam min_qtd integer Quantidade minima. Example: 10
+     * @queryParam max_qtd integer Quantidade maxima. Example: 100
+     * @queryParam updated_from date Data inicial de atualizacao (Y-m-d). Example: 2026-01-01
+     * @queryParam updated_to date Data final de atualizacao (Y-m-d). Example: 2026-01-31
+     */
     public function index(SaldoEstoqueIndexRequest $request)
     {
         $params = $request->validated();
@@ -100,6 +119,14 @@ class SaldoEstoqueController extends Controller
         );
     }
 
+    /**
+     * Exibe um saldo por ID
+     *
+     * @group Saldo de Estoque
+     * @authenticated
+     *
+     * @urlParam id integer required ID do saldo de estoque. Example: 1
+     */
     public function show(int $id)
     {
         $saldo = $this->baseQuery()
@@ -113,6 +140,16 @@ class SaldoEstoqueController extends Controller
         return $this->success(new SaldoEstoqueResource($saldo), 'Saldo de estoque recuperado com sucesso.');
     }
 
+    /**
+     * Atualiza um saldo de estoque
+     *
+     * @group Saldo de Estoque
+     * @authenticated
+     *
+     * @urlParam id integer required ID do saldo de estoque. Example: 1
+     * @bodyParam quantidade integer Quantidade atual do saldo. Example: 150
+     * @bodyParam data_entrada date Data de entrada no formato Y-m-d. Example: 2026-02-20
+     */
     public function update(SaldoEstoqueUpdateRequest $request, int $id)
     {
         $saldo = SaldoEstoque::query()->find($id);
