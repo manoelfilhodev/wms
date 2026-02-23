@@ -13,6 +13,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Setores\ArmazenagemController;
 use App\Http\Controllers\ContagemLivreController;
 use App\Http\Controllers\Api\V1\SaldoEstoqueController;
+use App\Http\Controllers\Api\V1\MeController;
 
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -27,28 +28,14 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         ]);
     });
 
-    Route::get('/me', function (Request $request) {
-        $user = $request->user();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Usuario autenticado.',
-            'data' => [
-                'id' => $user->id_user ?? $user->id,
-                'nome' => $user->nome,
-                'email' => $user->email,
-                'tipo' => $user->tipo ?? null,
-                'unidade_id' => $user->unidade_id ?? null,
-                'nivel' => $user->nivel ?? null,
-            ],
-            'meta' => (object) [],
-        ]);
-    });
+    Route::get('/me', MeController::class);
 
     Route::get('/saldo-estoque', [SaldoEstoqueController::class, 'index']);
     Route::get('/saldo-estoque/{id}', [SaldoEstoqueController::class, 'show'])->whereNumber('id');
     Route::match(['put', 'patch'], '/saldo-estoque/{id}', [SaldoEstoqueController::class, 'update'])->whereNumber('id');
 });
+
+Route::post('/v1/auth/login', [AuthController::class, 'apiLogin']);
 
 Route::post('/contagem-livre', [ContagemLivreController::class, 'store'])->middleware('auth:sanctum');
 

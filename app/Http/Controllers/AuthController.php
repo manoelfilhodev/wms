@@ -91,6 +91,29 @@ class AuthController extends Controller
         return redirect()->route('login')->with('success', 'Voce saiu do sistema com sucesso!');
     }
 
+    /**
+     * Login da API e emissao de token Sanctum
+     *
+     * @group Auth
+     * @unauthenticated
+     *
+     * @bodyParam email string required Email do usuario. Example: usuario@empresa.com
+     * @bodyParam password string required Senha do usuario. Example: Secret123!
+     *
+     * @response 200 {
+     *   "token": "1|xxxxxxxxxxxxxxxx",
+     *   "user": {
+     *     "id": 1,
+     *     "nome": "Nome do Usuario",
+     *     "tipo": "admin",
+     *     "unidade": 1,
+     *     "nivel": 1
+     *   }
+     * }
+     * @response 401 {
+     *   "message": "Credenciais invalidas"
+     * }
+     */
     public function apiLogin(Request $request)
     {
         $credentials = $request->only('email', 'password');
