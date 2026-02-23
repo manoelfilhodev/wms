@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\DemandaController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Setores\ArmazenagemController;
 use App\Http\Controllers\ContagemLivreController;
+use App\Http\Controllers\API\V1\SaldoEstoqueController;
 
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -43,6 +44,10 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
             'meta' => (object) [],
         ]);
     });
+
+    Route::get('/saldo-estoque', [SaldoEstoqueController::class, 'index']);
+    Route::get('/saldo-estoque/{id}', [SaldoEstoqueController::class, 'show'])->whereNumber('id');
+    Route::match(['put', 'patch'], '/saldo-estoque/{id}', [SaldoEstoqueController::class, 'update'])->whereNumber('id');
 });
 
 Route::post('/contagem-livre', [ContagemLivreController::class, 'store'])->middleware('auth:sanctum');
