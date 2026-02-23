@@ -140,7 +140,7 @@ for ($i = 1; $i <= $totalEtiquetas; $i++) {
 ^PW800
 ^LL800
 ^CF0,70
-^FO40,40^FDDEXCO - CAJ^FS
+^FO40,40^FDPRODUCAO ^FS
 ^FO40,110^GB720,3,3^FS
 
 ^CF0,60

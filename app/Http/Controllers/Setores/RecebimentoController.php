@@ -139,57 +139,56 @@ class RecebimentoController extends Controller
                 }
 
                 $paletizacao = (int) $material->paletizacao;
-$lastro = (int) ($material->lastro ?? 0);
-$camada = (int) ($material->camada ?? 0);
-$totalEtiquetas = (int) ceil($quantidade / $paletizacao);
+                $lastro = (int) ($material->lastro ?? 0);
+                $camada = (int) ($material->camada ?? 0);
+                $totalEtiquetas = (int) ceil($quantidade / $paletizacao);
 
-for ($i = 1; $i <= $totalEtiquetas; $i++) {
-    $ua = $recebimentoId . date('YmdHisv') . mt_rand(100, 999);
+                for ($i = 1; $i <= $totalEtiquetas; $i++) {
+                    $ua = $recebimentoId . date('YmdHisv') . mt_rand(100, 999);
 
-    // Ajuste de quantidade na última etiqueta (quebra de palete)
-    if ($i === $totalEtiquetas) {
-        // Quantidade restante é o total - já enviado nas etiquetas anteriores
-        $qtdEtiqueta = $quantidade - ($paletizacao * ($totalEtiquetas - 1));
-    } else {
-        $qtdEtiqueta = $paletizacao;
-    }
+                    // Ajuste de quantidade na última etiqueta (quebra de palete)
+                    if ($i === $totalEtiquetas) {
+                        // Quantidade restante é o total - já enviado nas etiquetas anteriores
+                        $qtdEtiqueta = $quantidade - ($paletizacao * ($totalEtiquetas - 1));
+                    } else {
+                        $qtdEtiqueta = $paletizacao;
+                    }
 
-    DB::table('_tb_recebimento_etiquetas')->insert([
-        'id_recebimento'  => $recebimentoId,
-        'sku'             => $sku,
-        'ean'             => $ean,
-        'descricao'       => $descricao,
-        'ua'              => $ua,
-        'lastro'          => $lastro,
-        'camada'          => $camada,
-        'paletizacao'     => $paletizacao,
-        'numero_etiqueta' => $i,
-        'total_etiquetas' => $totalEtiquetas,
-        'data_geracao'    => now(),
-        'quantidade'      => $qtdEtiqueta,
-        'created_at'      => now()
-    ]);
+                    DB::table('_tb_recebimento_etiquetas')->insert([
+                        'id_recebimento'  => $recebimentoId,
+                        'sku'             => $sku,
+                        'ean'             => $ean,
+                        'descricao'       => $descricao,
+                        'ua'              => $ua,
+                        'lastro'          => $lastro,
+                        'camada'          => $camada,
+                        'paletizacao'     => $paletizacao,
+                        'numero_etiqueta' => $i,
+                        'total_etiquetas' => $totalEtiquetas,
+                        'data_geracao'    => now(),
+                        'quantidade'      => $qtdEtiqueta,
+                        'created_at'      => now()
+                    ]);
 
-    $zpl = $this->gerarZPLEtiqueta([
-        'sku'        => $sku,
-        'descricao'  => $descricao,
-        'ean'        => $ean,
-        'quantidade' => $qtdEtiqueta, // aqui também vai a quantidade ajustada
-        'ua'         => $ua
-    ]);
+                    $zpl = $this->gerarZPLEtiqueta([
+                        'sku'        => $sku,
+                        'descricao'  => $descricao,
+                        'ean'        => $ean,
+                        'quantidade' => $qtdEtiqueta, // aqui também vai a quantidade ajustada
+                        'ua'         => $ua
+                    ]);
 
-    $dir = storage_path("app/etiquetas");
-    if (!is_dir($dir)) {
-        mkdir($dir, 0777, true);
-    }
-    file_put_contents($dir . "/{$ua}.zpl", $zpl);
-}
+                    $dir = storage_path("app/etiquetas");
+                    if (!is_dir($dir)) {
+                        mkdir($dir, 0777, true);
+                    }
+                    file_put_contents($dir . "/{$ua}.zpl", $zpl);
+                }
             }
 
             DB::commit();
             return redirect()->route('setores.recebimento.painel')
                 ->with('success', 'Recebimento e etiquetas gerados com sucesso!');
-
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error("Erro ao processar recebimento: " . $e->getMessage(), [
@@ -235,6 +234,92 @@ for ($i = 1; $i <= $totalEtiquetas; $i++) {
 ^XZ
         ";
     }
+
+    public function parseXml(Request $request)
+{
+    try {
+        if ($request->hasFile('xml')) {
+            $file = $request->file('xml');
+            if (!$file->isValid()) {
+                return response()->json(['ok' => false, 'message' => 'Arquivo XML inválido'], 400);
+            }
+            $content = file_get_contents($file->getRealPath());
+        } else {
+            $content = $request->getContent();
+        }
+
+        if (!$content || trim($content) === '') {
+            return response()->json(['ok' => false, 'message' => 'Nenhum XML recebido'], 400);
+        }
+
+        libxml_use_internal_errors(true);
+        $xml = simplexml_load_string($content);
+        if ($xml === false) {
+            $errors = array_map(fn($e) => trim($e->message), libxml_get_errors());
+            libxml_clear_errors();
+            return response()->json(['ok' => false, 'message' => 'XML inválido', 'errors' => $errors], 400);
+        }
+
+        // Em muitas NFe o nó raiz é <nfeProc>, com a NFe dentro de <NFe><infNFe>...
+        $infNFe = null;
+        if (isset($xml->NFe->infNFe)) {
+            $infNFe = $xml->NFe->infNFe;
+        } elseif (isset($xml->infNFe)) {
+            $infNFe = $xml->infNFe;
+        } elseif (isset($xml->nfeProc->NFe->infNFe)) {
+            $infNFe = $xml->nfeProc->NFe->infNFe;
+        }
+
+        if (!$infNFe) {
+            return response()->json(['ok' => false, 'message' => 'Estrutura de NF-e não reconhecida'], 400);
+        }
+
+        $itens = [];
+        if (isset($infNFe->det)) {
+            foreach ($infNFe->det as $det) {
+                $prod = $det->prod ?? null;
+                if (!$prod) continue;
+
+                // Campos comuns na NF-e
+                $cEAN = trim((string)($prod->cEAN ?? ''));
+                $cProd = trim((string)($prod->cProd ?? ''));
+                $xProd = trim((string)($prod->xProd ?? ''));
+                $uCom  = trim((string)($prod->uCom ?? 'UN'));
+                $qCom  = (float)($prod->qCom ?? 0);
+
+                // Defina sua regra de "sku": EAN se existir, senão cProd
+                $sku = $cEAN && $cEAN !== 'SEM GTIN' ? $cEAN : $cProd;
+
+                $itens[] = [
+                    'sku'       => $sku,
+                    'descricao' => $xProd,
+                    'uom'       => $uCom ?: 'UN',
+                    'qtd'       => $qCom > 0 ? $qCom : 0,
+                    'status'    => $sku ? 'OK' : 'Pendente'
+                ];
+            }
+        }
+
+        if (empty($itens)) {
+            return response()->json([
+                'ok' => true,
+                'message' => 'XML processado, mas nenhum item foi encontrado.',
+                'itens' => [],
+                'mensagens' => ['Verifique se o XML é uma NF-e válida e contém itens em infNFe/det.']
+            ]);
+        }
+
+        return response()->json([
+            'ok' => true,
+            'message' => 'XML processado com sucesso',
+            'itens' => $itens,
+            'mensagens' => []
+        ]);
+    } catch (\Throwable $e) {
+        \Log::error('Erro ao processar XML', ['ex' => $e]);
+        return response()->json(['ok' => false, 'message' => 'Erro interno ao processar XML'], 500);
+    }
+}
 
     public function listar()
     {

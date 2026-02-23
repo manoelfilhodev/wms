@@ -3,63 +3,68 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\DB;
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Laravel\Socialite\Facades\Socialite;
+use Throwable;
 
-class MicrosoftApiController extends Controller
+class MicrosoftController extends Controller
 {
-    public function loginFromApp(Request $request)
+    public function redirectToProvider(): RedirectResponse
     {
-        $request->validate([
-            'microsoft_token' => 'required|string',
-        ]);
+        return Socialite::driver('microsoft')->redirect();
+    }
 
-        // Valida token da Microsoft e obt«±m dados do usu«¡rio
-        $response = Http::withHeaders([
-            'Authorization' => 'Bearer ' . $request->microsoft_token,
-        ])->get('https://graph.microsoft.com/v1.0/me');
+    public function handleProviderCallback(Request $request): RedirectResponse
+    {
+        try {
+            $microsoftUser = Socialite::driver('microsoft')->user();
 
-        if ($response->failed()) {
-            return response()->json(['message' => 'Token Microsoft inv«¡lido'], 401);
-        }
+            $email = $microsoftUser->getEmail();
+            $name = $microsoftUser->getName() ?: 'Usuario Microsoft';
 
-        $microsoftUser = $response->json();
-        $email = $microsoftUser['mail'] ?? $microsoftUser['userPrincipalName'];
-        $name = $microsoftUser['displayName'];
+            if (! $email) {
+                return redirect()->route('login')->with('error', 'Nao foi possivel obter o e-mail da conta Microsoft.');
+            }
 
-        // Procura usu«¡rio
-        $user = DB::table('_tb_usuarios')->where('email', $email)->first();
+            $user = User::where('email', $email)->first();
 
-        // Cria se n«ªo existir
-        if (!$user) {
-            $id_user = DB::table('_tb_usuarios')->insertGetId([
-                'nome'        => $name,
-                'email'       => $email,
-                'password'    => bcrypt(str()->random(16)),
-                'unidade_id'  => null,
-                'tipo'        => 'operador',
-                'status'      => 'ativo',
-                'created_at'  => now(),
-                'updated_at'  => now(),
+            if (! $user) {
+                $userId = DB::table('_tb_usuarios')->insertGetId([
+                    'nome' => $name,
+                    'email' => $email,
+                    'password' => bcrypt(str()->random(32)),
+                    'unidade_id' => 1,
+                    'tipo' => 'operador',
+                    'status' => 'ativo',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+                $user = User::where('id_user', $userId)->first();
+            }
+
+            Auth::login($user);
+            $request->session()->regenerate();
+
+            DB::table('_tb_user_logs')->insert([
+                'usuario_id' => $user->id_user,
+                'unidade_id' => $user->unidade_id,
+                'acao' => 'login_microsoft - sucesso',
+                'dados' => json_encode(['email' => $email]),
+                'ip_address' => $request->ip(),
+                'navegador' => $request->userAgent(),
+                'created_at' => now(),
             ]);
 
-            $user = DB::table('_tb_usuarios')->where('id_user', $id_user)->first();
+            return redirect()->intended('/dashboard');
+        } catch (Throwable $exception) {
+            report($exception);
+
+            return redirect()->route('login')->with('error', 'Falha no login com Microsoft.');
         }
-
-        // Gera token Sanctum usando o model User
-        $eloquentUser = User::where('email', $email)->first();
-        $token = $eloquentUser->createToken('mobile-app')->plainTextToken;
-
-        return response()->json([
-            'token' => $token,
-            'user'  => [
-                'id'    => $user->id_user,
-                'nome'  => $user->nome,
-                'email' => $user->email,
-                'tipo'  => $user->tipo
-            ]
-        ]);
     }
 }

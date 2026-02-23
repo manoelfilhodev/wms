@@ -142,9 +142,9 @@
 
 <div id="titulo-tv">
     <div class="header-container">
-        <img src="https://www.grupotpc.com/wp-content/uploads/2024/12/350x100px-logo-tpc.png" alt="TPC" class="logo">
+        <img src="https://systex.com.br/site/wp-content/uploads/2022/09/systex-300x169.png" alt="TPC" class="logo">
         <span class="title-text">Painel de Controle Operacional</span>
-        <img src="https://www.dex.co/wp-content/themes/dexco/assets/images/logos/logo.svg" alt="Dexco" class="logo logo-dexco">
+        <img src="https://systex.com.br/site/wp-content/uploads/2022/09/systex-300x169.png" alt="Dexco" class="logo logo-dexco">
     </div>
 </div>
 
@@ -154,7 +154,7 @@
         <h4>Visão Geral da Operação</h4>
         <div class="grid-miniaturas">
             <div>
-                <h4>Produção de Kits</h4>
+                <h4>Produção</h4>
                 <canvas id="miniKits" class="miniatura"></canvas>
             </div>
             <div>

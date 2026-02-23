@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="container">
-    <h4 class="mb-3">Confirmação do Kit</h4>
+    <h4 class="mb-3">Confirmação de Produçã<optgroup></optgroup></h4>
 
     <div class="card mb-3">
         <div class="card-body">

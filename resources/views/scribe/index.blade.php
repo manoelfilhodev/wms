@@ -26,7 +26,7 @@
             </style>
 
     <script>
-        var tryItOutBaseUrl = "https://example.com";
+        var tryItOutBaseUrl = "http://127.0.0.1:8000";
         var useCsrf = Boolean();
         var csrfUrl = "/sanctum/csrf-cookie";
     </script>
@@ -113,7 +113,7 @@
     <div class="content">
         <h1 id="introduction">Introduction</h1>
 <aside>
-    <strong>Base URL</strong>: <code>https://example.com</code>
+    <strong>Base URL</strong>: <code>http://127.0.0.1:8000</code>
 </aside>
 <pre><code>This documentation aims to provide all the information you need to work with our API.
 
@@ -143,7 +143,7 @@ You can switch the language used with the tabs at the top right (or from the nav
 
 <div class="bash-example">
     <pre><code class="language-bash">curl --request GET \
-    --get "https://example.com/api/v1/me" \
+    --get "http://127.0.0.1:8000/api/v1/me" \
     --header "Authorization: Bearer &amp;lt;token&amp;gt;" \
     --header "Content-Type: application/json" \
     --header "Accept: application/json"</code></pre></div>
@@ -151,7 +151,7 @@ You can switch the language used with the tabs at the top right (or from the nav
 
 <div class="javascript-example">
     <pre><code class="language-javascript">const url = new URL(
-    "https://example.com/api/v1/me"
+    "http://127.0.0.1:8000/api/v1/me"
 );
 
 const headers = {
@@ -283,7 +283,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
 
 <div class="bash-example">
     <pre><code class="language-bash">curl --request POST \
-    "https://example.com/api/v1/auth/login" \
+    "http://127.0.0.1:8000/api/v1/auth/login" \
     --header "Content-Type: application/json" \
     --header "Accept: application/json" \
     --data "{
@@ -295,7 +295,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
 
 <div class="javascript-example">
     <pre><code class="language-javascript">const url = new URL(
-    "https://example.com/api/v1/auth/login"
+    "http://127.0.0.1:8000/api/v1/auth/login"
 );
 
 const headers = {
@@ -455,14 +455,14 @@ You can check the Dev Tools console for debugging information.</code></pre>
 
 <div class="bash-example">
     <pre><code class="language-bash">curl --request GET \
-    --get "https://example.com/api/v1/saldo-estoque?page=1&amp;per_page=15&amp;sort=updated_at&amp;direction=desc&amp;sku=ABC&amp;descricao=PARAFUSO&amp;unidade=1&amp;posicao=A01&amp;min_qtd=10&amp;max_qtd=100&amp;updated_from=2026-01-01&amp;updated_to=2026-01-31" \
+    --get "http://127.0.0.1:8000/api/v1/saldo-estoque?page=1&amp;per_page=15&amp;sort=updated_at&amp;direction=desc&amp;sku=ABC&amp;descricao=PARAFUSO&amp;unidade=1&amp;posicao=A01&amp;min_qtd=10&amp;max_qtd=100&amp;updated_from=2026-01-01&amp;updated_to=2026-01-31" \
     --header "Authorization: Bearer &amp;lt;token&amp;gt;" \
     --header "Content-Type: application/json" \
     --header "Accept: application/json" \
     --data "{
     \"page\": 16,
     \"per_page\": 22,
-    \"sort\": \"descricao\",
+    \"sort\": \"updated_at\",
     \"direction\": \"asc\",
     \"sku\": \"g\",
     \"material\": 66,
@@ -471,7 +471,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     \"posicao\": \"y\",
     \"min_qtd\": 60,
     \"max_qtd\": 42,
-    \"updated_from\": \"2026-02-22T21:58:58\",
+    \"updated_from\": \"2026-02-22T22:11:29\",
     \"updated_to\": \"2052-03-17\"
 }"
 </code></pre></div>
@@ -479,7 +479,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
 
 <div class="javascript-example">
     <pre><code class="language-javascript">const url = new URL(
-    "https://example.com/api/v1/saldo-estoque"
+    "http://127.0.0.1:8000/api/v1/saldo-estoque"
 );
 
 const params = {
@@ -508,7 +508,7 @@ const headers = {
 let body = {
     "page": 16,
     "per_page": 22,
-    "sort": "descricao",
+    "sort": "updated_at",
     "direction": "asc",
     "sku": "g",
     "material": 66,
@@ -517,7 +517,7 @@ let body = {
     "posicao": "y",
     "min_qtd": 60,
     "max_qtd": 42,
-    "updated_from": "2026-02-22T21:58:58",
+    "updated_from": "2026-02-22T22:11:29",
     "updated_to": "2052-03-17"
 };
 
@@ -792,10 +792,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
 <i>optional</i> &nbsp;
                 <input type="text" style="display: none"
                               name="sort"                data-endpoint="GETapi-v1-saldo-estoque"
-               value="descricao"
+               value="updated_at"
                data-component="body">
     <br>
-<p>Example: <code>descricao</code></p>
+<p>Example: <code>updated_at</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>id</code></li> <li><code>quantidade</code></li> <li><code>created_at</code></li> <li><code>updated_at</code></li> <li><code>sku</code></li> <li><code>descricao</code></li> <li><code>posicao</code></li> <li><code>unidade_id</code></li></ul>
         </div>
@@ -895,10 +895,10 @@ Must be one of:
 <i>optional</i> &nbsp;
                 <input type="text" style="display: none"
                               name="updated_from"                data-endpoint="GETapi-v1-saldo-estoque"
-               value="2026-02-22T21:58:58"
+               value="2026-02-22T22:11:29"
                data-component="body">
     <br>
-<p>validation.date. Example: <code>2026-02-22T21:58:58</code></p>
+<p>validation.date. Example: <code>2026-02-22T22:11:29</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>updated_to</code></b>&nbsp;&nbsp;
@@ -927,7 +927,7 @@ Must be one of:
 
 <div class="bash-example">
     <pre><code class="language-bash">curl --request GET \
-    --get "https://example.com/api/v1/saldo-estoque/1" \
+    --get "http://127.0.0.1:8000/api/v1/saldo-estoque/1" \
     --header "Authorization: Bearer &amp;lt;token&amp;gt;" \
     --header "Content-Type: application/json" \
     --header "Accept: application/json"</code></pre></div>
@@ -935,7 +935,7 @@ Must be one of:
 
 <div class="javascript-example">
     <pre><code class="language-javascript">const url = new URL(
-    "https://example.com/api/v1/saldo-estoque/1"
+    "http://127.0.0.1:8000/api/v1/saldo-estoque/1"
 );
 
 const headers = {
@@ -1080,7 +1080,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
 
 <div class="bash-example">
     <pre><code class="language-bash">curl --request PUT \
-    "https://example.com/api/v1/saldo-estoque/1" \
+    "http://127.0.0.1:8000/api/v1/saldo-estoque/1" \
     --header "Authorization: Bearer &amp;lt;token&amp;gt;" \
     --header "Content-Type: application/json" \
     --header "Accept: application/json" \
@@ -1093,7 +1093,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
 
 <div class="javascript-example">
     <pre><code class="language-javascript">const url = new URL(
-    "https://example.com/api/v1/saldo-estoque/1"
+    "http://127.0.0.1:8000/api/v1/saldo-estoque/1"
 );
 
 const headers = {

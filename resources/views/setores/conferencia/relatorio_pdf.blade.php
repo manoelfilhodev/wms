@@ -20,7 +20,7 @@
 <body>
     <div class="header">
         <img src="{{ public_path('logo.png') }}" height="50" alt="Logo">
-        <h2>Relatório de Conferência Cega - Dexco Cajamar</h2>
+        <h2>Relatório de Conferência Cega</h2>
         <small>Gerado em: {{ \Carbon\Carbon::now()->format('d/m/Y H:i') }}</small>
     </div>
 

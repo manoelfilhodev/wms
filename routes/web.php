@@ -5,14 +5,12 @@ use Illuminate\Support\Facades\Route;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
 use App\Exports\LogsExport;
-use App\Http\Controllers\Auth\MicrosoftController;
 use Illuminate\Routing\Middleware\VerifyCsrfToken;
 use Illuminate\Support\Facades\Http;
 use App\Http\Controllers\KitProgramarController;
 
 
 use App\Http\Controllers\{
-    AuthController,
     UserController,
     DashboardController,
     DashboardTvController,
@@ -52,6 +50,13 @@ use App\Http\Controllers\Setores\{
     RecebimentoItemController
 };
 
+/*
+|--------------------------------------------------------------------------
+| WEB Routes - WMS
+|--------------------------------------------------------------------------
+| Este arquivo contÈm rotas web e blocos legados mantidos por compatibilidade.
+| As rotas de autenticaÁ„o ficam no mÛdulo: routes/web/auth.php.
+*/
 Route::get('/imprimir-tudo/{recebimento_id}', [RecebimentoEtiquetaController::class, 'imprimirTudo'])->name('imprimir-tudo');
 
 Route::prefix('setores/recebimento')->name('setores.recebimento.')->group(function () {
@@ -66,59 +71,12 @@ Route::prefix('setores/recebimento')->name('setores.recebimento.')->group(functi
     Route::get('/painel', [RecebimentoController::class, 'index'])->name('painel');
 });
 
-Route::prefix('transferencias')->group(function () {
-    
-    Route::get('/apontar', [TransferenciaController::class, 'apontarView'])
-    ->name('transferencia.apontar');
-
-
-    // Central
-    Route::get('/', [TransferenciaController::class, 'index'])->name('transferencia.index');
-    
-    Route::get('/relatorio/excel', [TransferenciaController::class, 'exportarRelatorioExcel'])->name('transferencia.relatorio.excel');
-
-
-    // Programa√ß√£o
-    Route::get('/programar', [TransferenciaController::class, 'programar'])->name('transferencia.programar');
-    Route::post('/programar', [TransferenciaController::class, 'storeProgramacao'])->name('transferencia.storeProgramacao');
-    Route::get('/programar/editar', [TransferenciaController::class, 'editProgramacao'])->name('transferencia.editProgramacao');
-    Route::put('/programar/{id}', [TransferenciaController::class, 'updateProgramacao'])->name('transferencia.updateProgramacao');
-    Route::delete('/programar/{id}', [TransferenciaController::class, 'destroy'])->name('transferencia.destroy');
-
-    // Apontamento
-    Route::get('/apontar', [TransferenciaController::class, 'telaApontamento'])->name('transferencia.apontar');
-    Route::post('/apontar', [TransferenciaController::class, 'apontar'])->name('transferencia.apontar.store');
-
-    // Relat√≥rios
-    Route::get('/relatorio', [TransferenciaController::class, 'relatorio'])->name('transferencia.relatorio');
-    Route::get('/relatorio/pdf', [TransferenciaController::class, 'exportarRelatorioPDF'])->name('transferencia.relatorio.pdf');
-    Route::get('/relatorio/excel', [TransferenciaController::class, 'exportarRelatorioExcel'])->name('transferencia.relatorio.excel');
-
-    // Pend√™ncias
-    Route::get('/pendencias', [TransferenciaController::class, 'pendencias'])->name('transferencia.pendencias');
-
-    // Ajax/autocomplete
-    Route::get('/buscar-skus', [TransferenciaController::class, 'buscarSkus'])->name('transferencia.buscarSkus');
-    Route::get('/buscar-descricao', [TransferenciaController::class, 'buscarDescricao'])->name('transferencia.buscarDescricao');
-    
-    // Etiquetas
-Route::prefix('etiquetas')->group(function () {
-    Route::get('/', [TransferenciaEtiquetaController::class, 'index'])->name('transferencia.etiquetas.index');
-    Route::get('/form', [TransferenciaEtiquetaController::class, 'form'])->name('transferencia.etiquetas.form');
-    Route::post('/gerar', [TransferenciaEtiquetaController::class, 'gerar'])->name('transferencia.etiquetas.gerar');
-    Route::get('/{id}/visualizar', [TransferenciaEtiquetaController::class, 'visualizar'])->name('transferencia.etiquetas.visualizar');
-    Route::get('/{id}/preview', [TransferenciaEtiquetaController::class, 'preview'])->name('transferencia.etiquetas.preview');
-    Route::get('/imprimir-tudo', [TransferenciaEtiquetaController::class, 'imprimirTudo'])->name('transferencia.etiquetas.imprimirTudo');
-});
-
-Route::prefix('transferencias/etiquetas')->group(function () {
-    Route::get('/', [TransferenciaEtiquetaController::class, 'index'])->name('transferencia.etiquetas.index.legacy');
-    Route::get('/{id}/visualizar', [TransferenciaEtiquetaController::class, 'visualizar'])->name('transferencia.etiquetas.visualizar.legacy');
-    Route::get('/{id}/imprimir-tudo', [TransferenciaEtiquetaController::class, 'imprimirTudo'])->name('transferencia.etiquetas.imprimirTudo.legacy');
-    Route::get('/{id}/reimprimir', [TransferenciaEtiquetaController::class, 'reimprimir'])->name('transferencia.etiquetas.reimprimir');
-});
-});
-
+/*
+|--------------------------------------------------------------------------
+| transferencias Routes (mÛdulo)
+|--------------------------------------------------------------------------
+*/
+require __DIR__ . '/web/transferencias.php';
 
 Route::get('/expedicao/relatorio/pdf', [ExpedicaoController::class, 'exportarPdf'])
     ->name('expedicao.relatorio.pdf');
@@ -138,27 +96,12 @@ Route::get('/relatorios/producao', [RelatorioKitController::class, 'gerarRelator
 Route::get('/kits/pendencias', [App\Http\Controllers\KitMontagemController::class, 'pendencias'])->name('kit.pendencias');
 
 
-Route::post('/demandas/import', [DemandaController::class, 'import'])->name('demandas.import');
-
-Route::get('/demandas/import', function () {
-    return view('demandas.import');
-})->name('demandas.import.view');
-
-
-
-Route::prefix('demandas')->group(function () {
-    Route::get('/', [DemandaController::class, 'index'])->name('demandas.index');
-    Route::get('/create', [DemandaController::class, 'create'])->name('demandas.create');
-    Route::post('/store', [DemandaController::class, 'store'])->name('demandas.store.manual');
-});
-
-Route::resource('demandas', DemandaController::class)->except(['show']);
-Route::get('/demandas/export', [DemandaController::class, 'export'])->name('demandas.export');
-Route::patch('/demandas/{id}/status', [DemandaController::class, 'updateStatus'])->name('demandas.updateStatus');
-Route::patch('/demandas/update-multiple', [DemandaController::class, 'updateMultiple'])->name('demandas.updateMultiple');
-
-
-
+/*
+|--------------------------------------------------------------------------
+| demandas Routes (mÛdulo)
+|--------------------------------------------------------------------------
+*/
+require __DIR__ . '/web/demandas.php';
 
 // routes/web.php
 Route::prefix('kits')->middleware('auth')->group(function () {
@@ -225,75 +168,12 @@ Route::middleware(['auth'])->group(function () {
 });
 
 
-Route::get('/estoque/fichas', [InventarioCiclicoController::class, 'formImportarFichas'])->name('inventario.fichas.form');
-
-Route::get('/estoque/fichas', function () {
-    return view('inventario.fichas_importar');
-})->name('inventario.fichas.form');
-Route::get('/estoque/fichas', [InventarioCiclicoController::class, 'formImportarFichas'])->name('inventario.fichas.form');
-
-
-Route::post('/estoque/fichas/gerar', [App\Http\Controllers\InventarioCiclicoController::class, 'gerarFichasDiretas'])->name('inventario.fichas.gerar');
-Route::get('/estoque/fichas/reimprimir/{cod}', [InventarioCiclicoController::class, 'reimprimirFichas'])->name('inventario.fichas.reimprimir');
-Route::get('/estoque/fichas/historico', [InventarioCiclicoController::class, 'historicoFichas'])->name('inventario.fichas.historico');
-
-
-Route::get('/inventario/contar/{inventarioId}/{itemId}', [ContagemSkuController::class, 'formContagem'])->name('contar_item.form');
-Route::post('/inventario/contar/{inventarioId}/{itemId}', [ContagemSkuController::class, 'salvarContagem'])->name('contar_item.salvar');
-
-
-Route::get('/inventario/contar/{idInventario}', [ContagemSkuController::class, 'listarItensInventario'])->name('contar.inventario');
-
-Route::get('/posicoes', [InventarioCiclicoController::class, 'posicoes'])->name('inventario.posicoes');
-Route::post('/posicoes', [InventarioCiclicoController::class, 'salvarPosicao'])->name('inventario.posicoes.salvar');
-
-Route::get('/saldos', [InventarioCiclicoController::class, 'saldos'])->name('inventario.saldos');
-
-Route::get('/inventario/exportar/excel/{id}', [InventarioCiclicoController::class, 'exportarExcel'])->name('inventario.exportar.excel');
-Route::get('/inventario/exportar/pdf/{id}', [InventarioCiclicoController::class, 'exportarPdf'])->name('inventario.exportar.pdf');
-
-Route::get('/inventario/resumo/{id}', [InventarioCiclicoController::class, 'resumo'])->name('inventario.resumo');
-Route::post('/inventario/efetivar/{id}', [InventarioCiclicoController::class, 'efetivar'])->name('inventario.efetivar');
-
-
-Route::get('/inventario/pular/{id_inventario}/{item}', [InventarioCiclicoController::class, 'pular'])->name('inventario.pular');
-
-
-Route::get('/inventario/importar', [InventarioCiclicoController::class, 'importar'])->name('inventario.importar'); // FORMUL√ÅRIO
-Route::post('/inventario/gerar', [InventarioCiclicoController::class, 'gerarInventario'])->name('inventario.gerar'); // PROCESSA LISTA
-
-Route::post('/inventario/gerar', [InventarioCiclicoController::class, 'gerarInventario'])->name('inventario.gerar');
-
-
-Route::get('/inventario/requisicoes', [InventarioCiclicoController::class, 'listarRequisicoes'])->name('inventario.requisicoes');
-
-Route::get('/inventario/iniciar/{id}', [InventarioCiclicoController::class, 'iniciarContagem'])->name('inventario.iniciar');
-
-Route::get('/inventario/contar/{id_inventario}/{item}', [InventarioCiclicoController::class, 'contar'])->name('inventario.contar');
-Route::post('/inventario/contar/{id_inventario}/{item}', [InventarioCiclicoController::class, 'salvarContagem'])->name('inventario.contar.salvar');
-Route::get('/inventario/validacao/{id_inventario}', [InventarioCiclicoController::class, 'validacao'])->name('inventario.validacao');
-
-Route::get('/contagem/importar', [ContagemSkuController::class, 'formulario'])->name('contagem.formulario');
-Route::post('/contagem/salvar', [ContagemSkuController::class, 'salvar'])->name('contagem.salvar');
-Route::get('/contagem/lista/{id_lista}', [ContagemSkuController::class, 'exibir'])->name('contagem.lista');
-Route::post('/contagem/atualizar', [ContagemSkuController::class, 'salvarContagem'])->name('contagem.atualizar');
-
-Route::post('/inventario/mb51/salvar-temp', [InventarioController::class, 'importarMB51SalvarTemporario'])->name('inventario.mb51.salvar_temp');
-
-Route::get('/inventario/upload-mb51', [InventarioController::class, 'uploadForm'])->name('inventario.upload.mb51');
-
-
-
-Route::middleware(['auth'])->group(function () {
-    Route::get('/mb52/upload', [Mb52Controller::class, 'uploadForm'])->name('mb52.upload');
-    Route::post('/mb52/importar', [Mb52Controller::class, 'importar'])->name('mb52.importar');
-    Route::post('/mb52/excluir-hoje', [Mb52Controller::class, 'excluirHoje'])->name('mb52.excluir');
-});
-
-Route::middleware(['auth'])->group(function () {
-    Route::get('/inventario/upload', [InventarioController::class, 'uploadForm'])->name('inventario.upload');
-    Route::post('/inventario/importar', [InventarioController::class, 'importarMB51'])->name('inventario.importar.mb51');
-});
+/*
+|--------------------------------------------------------------------------
+| inventario Routes (mÛdulo)
+|--------------------------------------------------------------------------
+*/
+require __DIR__ . '/web/inventario.php';
 
 Route::put('/kit/programar/{id}', [KitMontagemController::class, 'updateProgramacao'])->name('kit.atualizar');
 Route::get('/kit/programar/editar', [KitMontagemController::class, 'editProgramacao'])->name('kit.editar');
@@ -584,9 +464,6 @@ Route::middleware('auth')->group(function () {
 Route::post('/setores/conferencia/{id}/salvar-foto', [ConferenciaController::class, 'salvarFotoInicio'])->name('setores.conferencia.salvarFotoInicio');
 
 
-Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [AuthController::class, 'login']);
-Route::get('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 
 Route::middleware(['auth'])->group(function () {
 
@@ -797,16 +674,11 @@ Route::prefix('recebimento')->middleware('auth')->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| REGISTER (Laravel padr√£o)
+| Auth Routes (mÛdulo dedicado)
 |--------------------------------------------------------------------------
 */
-// Se voc√™ quiser habilitar auto-registro de usu√°rios:
-use App\Http\Controllers\Auth\RegisterController;
-Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
-Route::post('/register', [RegisterController::class, 'register']);
-
-// Caso n√£o queira, pode simplesmente remover as chamadas a route('register') nos Blades.
-
-
 require __DIR__ . '/web/auth.php';
+
+
+
 
