@@ -11,11 +11,20 @@
                 <i class="mdi mdi-truck-fast display-6"></i>
             </div>
             <div>
-                <h3 class="mb-1 fw-bold text-dark">Demandas Lançadas</h3>
-                <p class="text-muted mb-0 small">Gerencie recebimentos e expedições</p>
+                <h3 class="mb-1 fw-bold text-dark">{{ !empty($modoOperacional) ? 'DTs Picking' : 'Demandas Lançadas' }}</h3>
+                <p class="text-muted mb-0 small">{{ !empty($modoOperacional) ? 'Visão do ADM Operacional: apenas DTs com picking' : 'Gerencie recebimentos e expedições' }}</p>
             </div>
         </div>
         <div class="d-flex gap-2">
+            <a href="{{ route('demandas.operacional') }}" class="btn btn-outline-danger btn-sm" data-bs-toggle="tooltip" title="Ver somente DTs com sobra">
+                <i class="mdi mdi-filter-variant"></i> Operacional
+            </a>
+            <a href="{{ route('demandas.dashboardOperacional') }}" class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" title="Dashboard de produtividade">
+                <i class="mdi mdi-chart-line"></i> Dashboard
+            </a>
+            <a href="{{ route('demandas.relatorios') }}" class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" title="Relatórios operacionais">
+                <i class="mdi mdi-file-chart-outline"></i> Relatórios
+            </a>
             <a href="{{ route('demandas.create') }}" class="btn btn-primary btn-sm" data-bs-toggle="tooltip" title="Lançar nova demanda">
                 <i class="mdi mdi-plus me-1"></i> Nova
             </a>
@@ -37,18 +46,24 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="mdi mdi-alert-circle-outline me-2"></i>{{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
 
     <!-- Card de Filtros (padrão gestão de estoque) -->
     <div class="card shadow-sm border-0 mb-4">
         <div class="card-body">
             <form method="GET" action="{{ route('demandas.index') }}" class="row g-3">
                 <div class="col-md-2">
-                    <label class="form-label small text-muted mb-1">FO</label>
+                    <label class="form-label small text-muted mb-1">DT</label>
                     <div class="input-group">
                         <span class="input-group-text bg-light border-end-0">
                             <i class="mdi mdi-pound text-muted"></i>
                         </span>
-                        <input type="text" name="fo" class="form-control border-start-0" placeholder="Digite o FO" value="{{ request('fo') }}">
+                        <input type="text" name="fo" class="form-control border-start-0" placeholder="Digite a DT" value="{{ request('fo') }}">
                     </div>
                 </div>
                 <div class="col-md-3">
@@ -61,15 +76,17 @@
                     </div>
                 </div>
                 <div class="col-md-2">
-                    <label class="form-label small text-muted mb-1">Tipo</label>
+                    <label class="form-label small text-muted mb-1">Status</label>
                     <div class="input-group">
                         <span class="input-group-text bg-light">
                             <i class="mdi mdi-compare-horizontal text-muted"></i>
                         </span>
-                        <select name="tipo" class="form-select">
+                        <select name="status" class="form-select">
                             <option value="">Todos</option>
-                            <option value="RECEBIMENTO" {{ request('tipo')=='RECEBIMENTO' ? 'selected' : '' }}>Recebimento</option>
-                            <option value="EXPEDICAO" {{ request('tipo')=='EXPEDICAO' ? 'selected' : '' }}>Expedição</option>
+                            <option value="A_SEPARAR" {{ request('status')=='A_SEPARAR' ? 'selected' : '' }}>A separar</option>
+                            <option value="SEPARANDO" {{ request('status')=='SEPARANDO' ? 'selected' : '' }}>Separando</option>
+                            <option value="SEPARADO_PARCIAL" {{ request('status')=='SEPARADO_PARCIAL' ? 'selected' : '' }}>Separação parcial</option>
+                            <option value="SEPARADO" {{ request('status')=='SEPARADO' ? 'selected' : '' }}>Separado</option>
                         </select>
                     </div>
                 </div>
@@ -95,7 +112,7 @@
                     <button type="submit" class="btn btn-primary w-100" data-bs-toggle="tooltip" title="Aplicar filtros">
                         <i class="mdi mdi-magnify"></i>
                     </button>
-                    @if(request()->hasAny(['fo','transportadora','tipo','data_inicio','data_fim']))
+                    @if(request()->hasAny(['fo','transportadora','status','data_inicio','data_fim']))
                         <a href="{{ route('demandas.index') }}" class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Limpar filtros">
                             <i class="mdi mdi-close"></i>
                         </a>
@@ -120,42 +137,17 @@
                                     <input type="checkbox" id="checkAll" class="form-check-input">
                                 </th>
                                 <th class="px-4 py-3 text-muted small fw-semibold">
-                                    <i class="mdi mdi-pound me-1"></i> FO
+                                    <i class="mdi mdi-pound me-1"></i> DT
                                 </th>
                                 <th class="px-4 py-3 text-muted small fw-semibold">
                                     <i class="mdi mdi-truck-outline me-1"></i> Transportadora
                                 </th>
-                                <th class="px-4 py-3 text-muted small fw-semibold text-center">
-                                    <i class="mdi mdi-dock-left me-1"></i> Doca
-                                </th>
-                                <th class="px-4 py-3 text-muted small fw-semibold text-center">
-                                    <i class="mdi mdi-compare-horizontal me-1"></i> Tipo
-                                </th>
-                                <th class="px-4 py-3 text-muted small fw-semibold text-end">
-                                    <i class="mdi mdi-counter me-1"></i> Qtd
-                                </th>
-                                <th class="px-4 py-3 text-muted small fw-semibold text-end">
-                                    <i class="mdi mdi-weight-kilogram me-1"></i> Peso (kg)
-                                </th>
-                                <th class="px-4 py-3 text-muted small fw-semibold text-end">
-                                    <i class="mdi mdi-cash me-1"></i> Valor
-                                </th>
-                                <th class="px-4 py-3 text-muted small fw-semibold text-center">
-                                    <i class="mdi mdi-calendar-clock me-1"></i> Agendamento
-                                </th>
-                                <th class="px-4 py-3 text-muted small fw-semibold text-center">
-                                    <i class="mdi mdi-login me-1"></i> Entrada
-                                </th>
-                                <th class="px-4 py-3 text-muted small fw-semibold text-center">
-                                    <i class="mdi mdi-logout me-1"></i> Saída
-                                </th>
+                                <th class="px-4 py-3 text-muted small fw-semibold text-center">Itens c/ sobra</th>
                                 <th class="px-4 py-3 text-muted small fw-semibold">
                                     <i class="mdi mdi-flag-outline me-1"></i> Status
                                 </th>
-                                <th class="px-4 py-3 text-muted small fw-semibold text-center">
-                                    <i class="mdi mdi-calendar me-1"></i> Criado em
-                                </th>
-                                <th class="px-4 py-3 text-muted small fw-semibold text-center">Ações</th>
+                                <th class="px-4 py-3 text-muted small fw-semibold text-center">Picking</th>
+                                <th class="px-4 py-3 text-muted small fw-semibold text-center">Distribuição</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -177,76 +169,62 @@
 
                             @forelse($demandas as $d)
                                 <tr class="border-bottom">
+                                    @php
+                                        $totalPicking = (int) round((float) ($d->total_pecas_picking ?? 0));
+                                        $totalDistribuido = (int) ($d->total_pecas_distribuidas ?? 0);
+                                        $restante = max(0, $totalPicking - $totalDistribuido);
+                                        $percentual = $totalPicking > 0 ? min(100, (int) round(($totalDistribuido / $totalPicking) * 100)) : 0;
+
+                                        $statusDinamico = 'A SEPARAR';
+                                        $statusDinamicoCor = 'info';
+                                        if ($d->separacao_finalizada_em) {
+                                            if ($d->separacao_resultado === 'PARCIAL') {
+                                                $statusDinamico = 'SEPARADO PARCIAL';
+                                                $statusDinamicoCor = 'warning';
+                                            } else {
+                                                $statusDinamico = 'SEPARADO';
+                                                $statusDinamicoCor = 'success';
+                                            }
+                                        } elseif ($totalDistribuido > 0 || $d->separacao_iniciada_em) {
+                                            $statusDinamico = 'SEPARANDO';
+                                            $statusDinamicoCor = 'primary';
+                                        }
+
+                                        $podeFinalizar = !$d->separacao_finalizada_em
+                                            && $statusDinamico === 'SEPARANDO'
+                                            && $totalPicking > 0
+                                            && $totalDistribuido >= $totalPicking;
+                                    @endphp
                                     <td class="px-4 py-3">
                                         <input type="checkbox" name="ids[]" value="{{ $d->id }}" class="form-check-input">
                                     </td>
-                                    <td class="px-4 py-3 fw-semibold">{{ $d->fo }}</td>
+                                    <td class="px-4 py-3 fw-semibold">
+                                        <a href="#" data-bs-toggle="modal" data-bs-target="#modalDistribuicao{{ $d->id }}">{{ $d->fo }}</a>
+                                    </td>
                                     <td class="px-4 py-3">{{ $d->transportadora }}</td>
                                     <td class="px-4 py-3 text-center">
-                                        <span class="badge bg-light text-dark border">{{ $d->doca }}</span>
+                                        <span class="badge bg-light text-dark border">{{ $d->total_itens_com_sobra ?? 0 }}</span>
                                     </td>
-                                    <td class="px-4 py-3 text-center">
-                                        <span class="badge bg-{{ $d->tipo === 'RECEBIMENTO' ? 'info' : 'success' }}">
-                                            {{ $d->tipo }}
+                                    <td class="px-4 py-3">
+                                        <span class="badge bg-{{ $statusDinamicoCor }}">
+                                            {{ $statusDinamico }}
                                         </span>
                                     </td>
-                                    <td class="px-4 py-3 text-end">{{ $d->quantidade ?? '-' }}</td>
-                                    <td class="px-4 py-3 text-end">{{ $d->peso ? number_format($d->peso, 2, ',', '.') : '-' }}</td>
-                                    <td class="px-4 py-3 text-end text-success fw-semibold">
-                                        {{ $d->valor_carga ? 'R$ '.number_format($d->valor_carga, 2, ',', '.') : '-' }}
-                                    </td>
-                                    <td class="px-4 py-3 text-center small">{{ $d->hora_agendada }}</td>
-                                    <td class="px-4 py-3 text-center small">{{ $d->entrada }}</td>
-                                    <td class="px-4 py-3 text-center small">{{ $d->saida }}</td>
-                                    <td class="px-4 py-3">
-                                        <div class="d-flex align-items-center gap-2">
-                                            <span class="badge bg-{{ $cores[$d->status] ?? 'secondary' }}">
-                                                {{ str_replace('_', ' ', $d->status) }}
-                                            </span>
-                                            <div class="dropdown">
-                                                <button class="btn btn-sm btn-light border-0" type="button" data-bs-toggle="dropdown" title="Alterar status">
-                                                    <i class="mdi mdi-chevron-down"></i>
-                                                </button>
-                                                <ul class="dropdown-menu dropdown-menu-end">
-                                                    @foreach($cores as $status => $cor)
-                                                        <li>
-                                                            <form action="{{ route('demandas.updateStatus', $d->id) }}" method="POST">
-                                                                @csrf
-                                                                @method('PATCH')
-                                                                <input type="hidden" name="status" value="{{ $status }}">
-                                                                <button type="submit" class="dropdown-item small">
-                                                                    <span class="badge bg-{{ $cor }} me-2"></span>
-                                                                    {{ str_replace('_', ' ', $status) }}
-                                                                </button>
-                                                            </form>
-                                                        </li>
-                                                    @endforeach
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="px-4 py-3 text-center small text-muted">
-                                        {{ $d->created_at->timezone('America/Sao_Paulo')->format('d/m/y H:i') }}
-                                    </td>
                                     <td class="px-4 py-3 text-center">
-                                        <div class="btn-group btn-group-sm" role="group">
-                                            <a href="{{ route('demandas.edit', $d->id) }}" class="btn btn-outline-primary" data-bs-toggle="tooltip" title="Editar">
-                                                <i class="mdi mdi-pencil"></i>
-                                            </a>
-                                            <form action="{{ route('demandas.destroy', $d->id) }}" method="POST" class="d-inline">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-outline-danger" data-bs-toggle="tooltip" title="Excluir"
-                                                    onclick="return confirm('Deseja excluir esta demanda?')">
-                                                    <i class="mdi mdi-trash-can"></i>
-                                                </button>
-                                            </form>
+                                        <div class="small text-muted mb-1">Peças a separar</div>
+                                        <div class="fw-semibold">{{ $totalPicking }}</div>
+                                    </td>
+                                    <td class="px-4 py-3 text-center" style="min-width:220px;">
+                                        <div class="small mb-1">{{ $totalDistribuido }}/{{ $totalPicking }} peças ({{ $percentual }}%)</div>
+                                        <div class="progress" style="height:8px;">
+                                            <div class="progress-bar bg-success" role="progressbar" style="width: {{ $percentual }}%;"></div>
                                         </div>
+                                        <div class="small text-muted mt-1">Restante: {{ $restante }}</div>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="14" class="text-center py-5">
+                                    <td colspan="8" class="text-center py-5">
                                         <div class="text-muted">
                                             <i class="mdi mdi-package-variant-closed display-4 d-block mb-3 opacity-25"></i>
                                             <p class="mb-0">Nenhuma demanda encontrada</p>
@@ -271,6 +249,151 @@
         @endif
     </div>
 </div>
+
+@foreach($demandas as $d)
+    @php
+        $totalPicking = (int) round((float) ($d->total_pecas_picking ?? 0));
+        $totalDistribuido = (int) ($d->total_pecas_distribuidas ?? 0);
+        $restante = max(0, $totalPicking - $totalDistribuido);
+    @endphp
+    <div class="modal fade" id="modalDistribuicao{{ $d->id }}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Distribuição da DT {{ $d->fo }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4"><div class="small text-muted">Total Picking</div><div class="fw-semibold">{{ $totalPicking }}</div></div>
+                        <div class="col-md-4"><div class="small text-muted">Já Distribuído</div><div class="fw-semibold">{{ $totalDistribuido }}</div></div>
+                        <div class="col-md-4"><div class="small text-muted">Saldo</div><div class="fw-semibold">{{ $restante }}</div></div>
+                    </div>
+
+                    @php
+                        $inicio = $d->separacao_iniciada_em ? \Carbon\Carbon::parse($d->separacao_iniciada_em) : null;
+                        $fim = $d->separacao_finalizada_em ? \Carbon\Carbon::parse($d->separacao_finalizada_em) : null;
+                    @endphp
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <div class="small text-muted">Início da separação</div>
+                            <div class="fw-semibold">{{ $inicio ? $inicio->format('d/m/Y H:i:s') : '-' }}</div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="small text-muted">Fim da separação</div>
+                            <div class="fw-semibold">{{ $fim ? $fim->format('d/m/Y H:i:s') : '-' }}</div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="small text-muted">Tempo da separação</div>
+                            <div class="fw-semibold">
+                                @if($inicio && $fim)
+                                    {{ $inicio->diff($fim)->format('%H:%I:%S') }}
+                                @elseif($inicio && !$fim)
+                                    Em andamento
+                                @else
+                                    -
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+                    <form method="POST" action="{{ route('demandas.distribuir', $d->id) }}" class="row g-2 mb-3">
+                        @csrf
+                        <div class="col-md-6">
+                            <label class="form-label small text-muted mb-1">Nome do separador</label>
+                            <input type="text" name="separador_nome" class="form-control form-control-sm" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small text-muted mb-1">Qtd peças</label>
+                            <input type="number" name="quantidade_pecas" min="1" max="{{ $restante }}" class="form-control form-control-sm" required>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-sm btn-primary w-100">Distribuir</button>
+                        </div>
+                    </form>
+
+                    @php
+                        $distribuicoesPorSeparador = $d->distribuicoes
+                            ->groupBy('separador_nome')
+                            ->map(function ($itens) {
+                                $inicio = $itens->min('created_at');
+                                $fim = $itens->whereNotNull('finalizado_em')->max('finalizado_em');
+                                $resultado = $itens->whereNotNull('resultado')->last()?->resultado;
+                                return [
+                                    'separador_nome' => $itens->first()->separador_nome,
+                                    'quantidade_pecas' => (int) $itens->sum('quantidade_pecas'),
+                                    'inicio' => $inicio ? \Carbon\Carbon::parse($inicio) : null,
+                                    'fim' => $fim ? \Carbon\Carbon::parse($fim) : null,
+                                    'resultado' => $resultado,
+                                ];
+                            })
+                            ->values();
+                    @endphp
+
+                    <div class="table-responsive">
+                        <table class="table table-sm mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Separador</th>
+                                    <th class="text-end">Qtd peças</th>
+                                    <th class="text-end">Início</th>
+                                    <th class="text-end">Fim</th>
+                                    <th class="text-end">Tempo</th>
+                                    <th class="text-end">Status</th>
+                                    <th class="text-end">Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($distribuicoesPorSeparador as $dist)
+                                    <tr>
+                                        <td>{{ $dist['separador_nome'] }}</td>
+                                        <td class="text-end">{{ $dist['quantidade_pecas'] }}</td>
+                                        <td class="text-end">{{ $dist['inicio']?->format('d/m/Y H:i') ?? '-' }}</td>
+                                        <td class="text-end">{{ $dist['fim']?->format('d/m/Y H:i') ?? '-' }}</td>
+                                        <td class="text-end">
+                                            @if($dist['inicio'] && $dist['fim'])
+                                                {{ $dist['inicio']->diff($dist['fim'])->format('%H:%I:%S') }}
+                                            @elseif($dist['inicio'])
+                                                Em andamento
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
+                                        <td class="text-end">
+                                            @if($dist['fim'])
+                                                @if($dist['resultado'] === 'PARCIAL')
+                                                    <span class="badge bg-warning">Parcial</span>
+                                                @else
+                                                    <span class="badge bg-success">Completa</span>
+                                                @endif
+                                            @else
+                                                <span class="badge bg-primary">Separando</span>
+                                            @endif
+                                        </td>
+                                        <td class="text-end">
+                                            @if(!$dist['fim'])
+                                                <form action="{{ route('demandas.finalizarSeparador', $d->id) }}" method="POST" class="d-inline-flex gap-1">
+                                                    @csrf
+                                                    <input type="hidden" name="separador_nome" value="{{ $dist['separador_nome'] }}">
+                                                    <button type="submit" name="resultado" value="PARCIAL" class="btn btn-sm btn-warning">Parcial</button>
+                                                    <button type="submit" name="resultado" value="COMPLETA" class="btn btn-sm btn-success">Completa</button>
+                                                </form>
+                                            @else
+                                                <span class="text-muted small">Finalizado</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr><td colspan="7" class="text-center text-muted">Sem distribuição registrada.</td></tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endforeach
 
 <script>
 document.getElementById('checkAll')?.addEventListener('change', function(){

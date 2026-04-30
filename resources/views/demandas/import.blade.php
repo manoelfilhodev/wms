@@ -11,8 +11,8 @@
                 <i class="mdi mdi-file-excel-box display-6"></i>
             </div>
             <div>
-                <h3 class="mb-1 fw-bold text-dark">Importar Demandas em Lote</h3>
-                <p class="text-muted mb-0 small">Cole os dados do Excel para importar múltiplas demandas de uma vez</p>
+                <h3 class="mb-1 fw-bold text-dark">Importar DTs SAP</h3>
+                <p class="text-muted mb-0 small">Cole a exportação SAP (com Transporte, Material e Sobra)</p>
             </div>
         </div>
         <div class="d-flex gap-2">
@@ -77,15 +77,11 @@
                     <div class="bg-light p-3 rounded">
                         <small class="text-muted d-block mb-1"><strong>Colunas obrigatórias:</strong></small>
                         <ul class="small text-muted mb-0 ps-3">
-                            <li>FO</li>
-                            <li>Cliente</li>
-                            <li>Tipo (RECEBIMENTO ou EXPEDICAO)</li>
+                            <li>Transporte (DT)</li>
                             <li>Transportadora</li>
-                            <li>Doca</li>
-                            <li>Quantidade</li>
-                            <li>Peso</li>
-                            <li>Valor da Carga</li>
-                            <li>Hora Agendada</li>
+                            <li>Material (SKU)</li>
+                            <li>Sobra</li>
+                            <li>Texto breve material</li>
                         </ul>
                     </div>
 
@@ -117,7 +113,7 @@
                                 id="planilha" 
                                 class="form-control font-monospace" 
                                 rows="16" 
-                                placeholder="Cole aqui os dados da planilha (Ctrl+V ou Cmd+V)&#10;&#10;Exemplo:&#10;FO	Cliente	Tipo	Transportadora	Doca	Quantidade	Peso	Valor	Hora&#10;12345	Cliente A	RECEBIMENTO	ABC Log	D1	100	500	10000	08:00&#10;12346	Cliente B	EXPEDICAO	XYZ Trans	D2	200	800	15000	10:00"
+                                placeholder="Cole aqui os dados exportados do SAP (Ctrl+V ou Cmd+V)"
                                 required
                             ></textarea>
                             <small class="text-muted">

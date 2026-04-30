@@ -2,571 +2,208 @@
 
 @section('content')
 <style>
-    html, body {
-        margin: 0;
-        padding: 0;
-        background-color: #121212;
-        color: #ffffff;
-        font-family: sans-serif;
-        overflow: hidden;
-        height: 100vh;
-    }
-
-    #titulo-tv {
-        height: 10vh;
-        background: #000;
-        color: #fff;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .header-container {
-        width: 100%;
-        max-width: 100vw;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0 40px;
-    }
-
-    .title-text {
-        font-size: 2rem;
-        font-weight: bold;
-        text-align: center;
-        flex: 1;
-    }
-
-    .logo {
-        height: 45px;
-        max-width: 150px;
-        object-fit: contain;
-    }
-
-    .logo-dexco {
-        filter: brightness(0) invert(1);
-    }
-
-    #carousel {
-        height: 90vh;
-    }
-
-    .slide {
-        display: none;
-        height: 100%;
-        padding: 0;
-        box-sizing: border-box;
-        text-align: center;
-        
-    }
-
-    .slide.active {
-        display: block;
-    }
-
-    .slide h4 {
-        font-size: 1.5rem;
-        margin: 5px 0;
-        color: #ffffff;
-    }
-
-    canvas {
-        width: 95vw !important;
-        height: 75vh !important;
-    }
-
-    .miniatura {
-    width: 30vw !important;
-    height: 30vh !important;
-    margin: 1rem;
-    background: #1e1e1e;
-    border-radius: 10px;
-    padding: 0.5rem;
-}
-
-   .grid-miniaturas {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: flex-start;
-}
-
-    .fullscreen-btn {
-        position: fixed;
-        top: 10px;
-        right: 10px;
-        z-index: 9999;
-        background: #27ae60;
-        color: #fff;
-        border: none;
-        padding: 10px 15px;
-        border-radius: 5px;
-        cursor: pointer;
-    }
-    
-    .card-slide {
-    background: #1e1e1e;
-    border-radius: 15px;
-    padding: 20px;
-    margin: 30px auto;
-    max-width: 95vw;
-    box-shadow: 0 0 15px rgba(0,0,0,0.5);
-}
-
-.slide-nav {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 2.5rem;
-    background-color: rgba(0, 0, 0, 0.5);
-    border: none;
-    color: white;
-    padding: 10px 20px;
-    cursor: pointer;
-    z-index: 1000;
-    border-radius: 8px;
-    user-select: none;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-#carousel:hover .slide-nav {
-    opacity: 1;
-}
-
-#prev-slide { left: 10px; }
-#next-slide { right: 10px; }
+  body { background: #070b14; color: #e8eefc; font-family: "Segoe UI", sans-serif; overflow: hidden; }
+  .tv-header { height: 10vh; display:flex; align-items:center; justify-content:center; background:#05070d; border-bottom:1px solid rgba(255,255,255,.08); }
+  .tv-header h1 { margin:0; font-size:2rem; letter-spacing:.5px; }
+  #carousel { height: 90vh; position: relative; }
+  .slide { display:none; height:100%; padding:16px 24px; }
+  .slide.active { display:block; }
+  .grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:14px; }
+  .kpi { background:linear-gradient(180deg,#111a2d,#0b1322); border:1px solid rgba(255,255,255,.07); border-radius:12px; padding:14px; }
+  .kpi .label { color:#9db0d2; font-size:.9rem; }
+  .kpi .value { font-size:2rem; font-weight:700; }
+  .panel { background:linear-gradient(180deg,#10192b,#0a1220); border:1px solid rgba(255,255,255,.07); border-radius:12px; padding:12px; height: calc(100% - 10px); }
+  .panel h3 { margin:2px 0 10px; font-size:1.1rem; color:#c9d7f2; }
+  .panel canvas { height: 60vh !important; }
+  .mini-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:14px; height:70vh; }
+  .mini-grid .panel canvas { height: 28vh !important; }
+  .slide-nav { position:absolute; top:50%; transform:translateY(-50%); background:rgba(0,0,0,.45); color:#fff; border:0; font-size:2rem; width:48px; height:64px; cursor:pointer; }
+  #prev-slide { left:0; border-radius:0 8px 8px 0; }
+  #next-slide { right:0; border-radius:8px 0 0 8px; }
 </style>
 
-<!--<button class="fullscreen-btn d-none" onclick="ativaFullscreen()">Tela Cheia</button>-->
-
-<div id="titulo-tv">
-    <div class="header-container">
-        <img src="https://systex.com.br/site/wp-content/uploads/2022/09/systex-300x169.png" alt="TPC" class="logo">
-        <span class="title-text">Painel de Controle Operacional</span>
-        <img src="https://systex.com.br/site/wp-content/uploads/2022/09/systex-300x169.png" alt="Dexco" class="logo logo-dexco">
-    </div>
+<div class="tv-header">
+  <h1>Painel TV • Separação Picking</h1>
 </div>
 
 <div id="carousel">
-    <!-- Slide inicial: Miniaturas -->
-    <div class="slide active">
-        <h4>Visão Geral da Operação</h4>
-        <div class="grid-miniaturas">
-            <div>
-                <h4>Produção</h4>
-                <canvas id="miniKits" class="miniatura"></canvas>
-            </div>
-            <div>
-                <h4>Top 5 Separação</h4>
-                <canvas id="miniTopSeparacao" class="miniatura"></canvas>
-            </div>
-            <div>
-                <h4>Top 5 Armazenagem</h4>
-                <canvas id="miniTopArmazenagem" class="miniatura"></canvas>
-            </div>
-            <div>
-                <h4>Paletes Contados</h4>
-                <canvas id="miniPaletesMes" class="miniatura"></canvas>
-            </div>
-            <div>
-                <h4>Separações no Mês</h4>
-                <canvas id="miniSeparacoesMes" class="miniatura"></canvas>
-            </div>
-            <div>
-                <h4>Armazenagens no Mês</h4>
-                <canvas id="miniArmazenagensMes" class="miniatura"></canvas>
-            </div>
-        </div>
-
+  <section class="slide active">
+    <div class="grid">
+      <div class="kpi"><div class="label">A separar</div><div class="value">{{ $status['a_separar'] }}</div></div>
+      <div class="kpi"><div class="label">Separando</div><div class="value">{{ $status['separando'] }}</div></div>
+      <div class="kpi"><div class="label">Separado parcial</div><div class="value">{{ $status['separado_parcial'] }}</div></div>
+      <div class="kpi"><div class="label">Separado completo</div><div class="value">{{ $status['separado_completo'] }}</div></div>
     </div>
-
-    <!-- Slides originais -->
-    <div class="slide">
-         <div class="card-slide">
-             <h4>Produção de Kits - Hoje</h4>
-             <canvas id="chartKits"></canvas>
-         </div>
-     </div>
-    <div class="slide">
-        <div class="card-slide">
-            <h4>Produção de Kits - Mês Atual</h4>
-            <canvas id="chartKitsMensal"></canvas>
-        </div>
+    <div class="mini-grid">
+      <div class="panel"><h3>Status geral</h3><canvas id="miniStatus"></canvas></div>
+      <div class="panel"><h3>Top separadores (7 dias)</h3><canvas id="miniRanking"></canvas></div>
+      <div class="panel"><h3>Finalizações no mês</h3><canvas id="miniMes"></canvas></div>
+      <div class="panel"><h3>Volume por turno</h3><canvas id="miniTurno"></canvas></div>
     </div>
+  </section>
 
-     <div class="slide">
-         <div class="card-slide">
-             <h4>Top 5 Separação - Últimos 7 dias</h4>
-             <canvas id="chartTopSeparacao"></canvas>
-         </div>
-     </div>
-     <div class="slide">
-         <div class="card-slide">
-             <h4>Top 5 Armazenagem - Últimos 7 dias</h4>
-             <canvas id="chartTopArmazenagem"></canvas>
-         </div>
-     </div>
-     <div class="slide">
-         <div class="card-slide">
-             <h4>Paletes Contados no Mês</h4>
-             <canvas id="chartPaletesMes"></canvas>
-         </div>
-     </div>
-     <div class="slide">
-         <div class="card-slide">
-             <h4>Separações no Mês</h4>
-             <canvas id="chartSeparacoesMes"></canvas>
-         </div>
-     </div>
-     <div class="slide">
-         <div class="card-slide">
-             <h4>Armazenagens no Mês</h4>
-             <canvas id="chartArmazenagensMes"></canvas>
-         </div>
-     </div>
-     <button id="prev-slide" class="slide-nav">&#8249;</button>
-<button id="next-slide" class="slide-nav">&#8250;</button>
+  <section class="slide">
+    <div class="panel"><h3>Top separadores (quantidade distribuída)</h3><canvas id="chartRanking"></canvas></div>
+  </section>
+
+  <section class="slide">
+    <div class="panel"><h3>Finalizações por dia no mês (completo x parcial)</h3><canvas id="chartMes"></canvas></div>
+  </section>
+
+  <section class="slide">
+    <div class="panel"><h3>Distribuição por turno + tempo médio geral: {{ number_format($tempoMedioMin,1,',','.') }} min</h3><canvas id="chartTurno"></canvas></div>
+  </section>
+
+  <button id="prev-slide" class="slide-nav">&#8249;</button>
+  <button id="next-slide" class="slide-nav">&#8250;</button>
 </div>
 @endsection
 
 @section('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 <script>
-    function ativaFullscreen() {
-        const elem = document.documentElement;
-        if (elem.requestFullscreen) {
-            elem.requestFullscreen().catch(err => console.warn('Erro ao tentar fullscreen:', err));
-        }
+const statusData = {!! json_encode([
+  (int) ($status['a_separar'] ?? 0),
+  (int) ($status['separando'] ?? 0),
+  (int) ($status['separado_parcial'] ?? 0),
+  (int) ($status['separado_completo'] ?? 0),
+]) !!};
+const rankingLabels = {!! json_encode(collect($ranking)->pluck('nome')->values()->all()) !!};
+const rankingValues = {!! json_encode(collect($ranking)->pluck('total')->map(function ($v) { return (int) $v; })->values()->all()) !!};
+const diasMes = @json($diasMes);
+const separacoesDia = @json($separacoesDia);
+const parciaisDia = @json($parciaisDia);
+const turnoLabels = @json($turnoLabels);
+const turnoValues = @json($turnoValues);
+
+const baseOpts = {
+  responsive: true,
+  maintainAspectRatio: false,
+  animation: false,
+  plugins: {
+    legend: { position: 'bottom', labels: { color: '#d3ddf4' } },
+    datalabels: {
+      color: '#f8fbff',
+      font: { weight: '700', size: 11 },
+      anchor: 'end',
+      align: 'top',
+      formatter: (value) => value
+    },
+    tooltip: {
+      callbacks: {
+        label: (ctx) => `${ctx.dataset.label || 'Valor'}: ${ctx.parsed.y ?? ctx.raw}`
+      }
     }
+  },
+  scales: {
+    x: { title: { display: true, text: 'Período/Operador', color: '#9db0d2' }, ticks: { color: '#c2d0ed' }, grid: { color: 'rgba(255,255,255,.08)' } },
+    y: { title: { display: true, text: 'Quantidade', color: '#9db0d2' }, ticks: { color: '#c2d0ed' }, grid: { color: 'rgba(255,255,255,.08)' }, beginAtZero: true }
+  }
+};
 
-    document.addEventListener('DOMContentLoaded', () => {
-        const topSeparacao = @json($topSeparacao);
-        const topArmazenagem = @json($topArmazenagem);
-        const dias = @json($dias);
-        const separacaoMes = @json($separacaoMes);
-        const armazenagemMes = @json($armazenagemMes);
-        const paletesMes = @json($paletesMes);
-        const kitsHoje = @json($kitsHoje);
+function mk(id, cfg){ new Chart(document.getElementById(id), { ...cfg, plugins: [ChartDataLabels] }); }
 
-        const optionsMini = {
-            responsive: true,
-            plugins: {
-                legend: { display: false },
-                datalabels: { display: false }
-            },
-            scales: {
-                x: { ticks: { color: '#fff' } },
-                y: { ticks: { color: '#fff' }, beginAtZero: true }
-            }
-        };
-
-        const optionsFull = {
-            responsive: true,
-            plugins: {
-                legend: { labels: { color: '#fff' } },
-                datalabels: {
-                    color: '#fff',
-                    font: { weight: 'bold', size: 16 },
-                    anchor: 'end',
-                    align: 'start',
-                    formatter: value => value,
-                    offset: 4,
-                    display: ctx => typeof ctx.dataset.data[ctx.dataIndex] !== 'undefined',
-                            formatter: (value, ctx) => {
-                                if (ctx.dataset.type === 'line') return value + '%';
-                                return value;
-                            },
-                }
-            },
-            scales: {
-                x: { ticks: { color: '#fff' } },
-                y: { ticks: { color: '#fff' }, beginAtZero: true }
-            }
-        };
-
-        const renderChart = (id, labels, data, bgColor, options, type = 'bar') => {
-            new Chart(document.getElementById(id), {
-                type: type,
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: '',
-                        data: data,
-                        backgroundColor: bgColor
-                    }]
-                },
-                options: options,
-                plugins: [ChartDataLabels]
-            });
-        };
-
-        renderChart('chartTopSeparacao', topSeparacao.map(i => i.nome), topSeparacao.map(i => i.total), '#2ecc71', optionsFull);
-        renderChart('miniTopSeparacao', topSeparacao.map(i => i.nome), topSeparacao.map(i => i.total), '#2ecc71', optionsMini);
-
-        renderChart('chartTopArmazenagem', topArmazenagem.map(i => i.nome), topArmazenagem.map(i => i.total), '#3498db', optionsFull);
-        renderChart('miniTopArmazenagem', topArmazenagem.map(i => i.nome), topArmazenagem.map(i => i.total), '#3498db', optionsMini);
-
-        renderChart('chartSeparacoesMes', dias, separacaoMes, '#1abc9c', optionsFull);
-        renderChart('miniSeparacoesMes', dias, separacaoMes, '#1abc9c', optionsMini);
-
-        renderChart('chartArmazenagensMes', dias, armazenagemMes, '#9b59b6', optionsFull);
-        renderChart('miniArmazenagensMes', dias, armazenagemMes, '#9b59b6', optionsMini);
-
-        renderChart('chartPaletesMes', dias, paletesMes, '#2980b9', optionsFull);
-        renderChart('miniPaletesMes', dias, paletesMes, '#2980b9', optionsMini);
-
-        const kitLabels = Object.keys(kitsHoje).filter(k => k !== 'TOTAL');
-
-        if (kitLabels.length > 0) {
-            const datasetsFull = [
-                {
-                    type: 'bar',
-                    label: 'Programado',
-                    data: kitLabels.map(k => kitsHoje[k].programado),
-                    backgroundColor: '#2980b9',
-                    yAxisID: 'y',
-                },
-                {
-                    type: 'bar',
-                    label: 'Produzido',
-                    data: kitLabels.map(k => kitsHoje[k].produzido),
-                    backgroundColor: '#e67e22',
-                    yAxisID: 'y',
-                },
-                {
-                    type: 'line',
-                    label: '% Execução',
-                    data: kitLabels.map(k => {
-                        const kit = kitsHoje[k];
-                        if (kit.programado === 0) return 0;
-                        return ((kit.produzido / kit.programado) * 100).toFixed(1);
-                    }),
-                    borderColor: '#27ae60',
-                    backgroundColor: '#27ae60',
-                    yAxisID: 'y1',
-                    tension: 0.3,
-                    datalabels: {
-                        formatter: value => value + '%',
-                        anchor: 'end',
-                        align: 'top',
-                        color: '#fff'
-                    }
-                }
-            ];
-
-            new Chart(document.getElementById('chartKits'), {
-                data: { labels: kitLabels, datasets: datasetsFull },
-                options: {
-                    responsive: true,
-                    interaction: { mode: 'index', intersect: false },
-                    plugins: {
-                        legend: { labels: { color: '#fff' } },
-                        datalabels: {
-                            color: '#fff',
-                            font: { weight: 'bold', size: 14 },
-                            anchor: 'end',       // <- topo interno
-                            align: 'top',        // <- topo interno (não "start" ou "center")
-                            display: ctx => typeof ctx.dataset.data[ctx.dataIndex] !== 'undefined',
-                            formatter: (value, ctx) => {
-                                if (ctx.dataset.type === 'line') return value + '%';
-                                return value;
-                            },
-                            padding: { top: 6 }
-                        }
-                    },
-                    scales: {
-                        x: { ticks: { color: '#fff' } },
-                        y: {
-                            position: 'left',
-                            title: { display: true, text: 'Quantidade', color: '#fff' },
-                            ticks: { color: '#fff' },
-                            beginAtZero: true,
-                            suggestedMax: 1.2 * Math.max(...kitLabels.map(k => kitsHoje[k].programado))
-                        },
-                        y1: {
-                            position: 'right',
-                            title: { display: true, text: '% Execução', color: '#fff' },
-                            ticks: {
-                                color: '#fff',
-                                callback: val => val + '%'
-                            },
-                            beginAtZero: true,
-                            suggestedMax: 110,
-                            grid: { drawOnChartArea: false }
-                        }
-                    }
-                },
-                plugins: [ChartDataLabels]
-            });
-
-            if (kitLabels.length > 0) {
-    new Chart(document.getElementById('miniKits'), {
-        data: {
-            labels: kitLabels,
-            datasets: [
-                {
-                    type: 'bar',
-                    label: 'Programado',
-                    data: kitLabels.map(k => kitsHoje[k].programado),
-                    backgroundColor: '#e67e22',
-                    yAxisID: 'y',
-                },
-                {
-                    type: 'bar',
-                    label: 'Produzido',
-                    data: kitLabels.map(k => kitsHoje[k].produzido),
-                    backgroundColor: '#2980b9',
-                    yAxisID: 'y',
-                },
-                {
-                    type: 'line',
-                    label: '% Execução',
-                    data: kitLabels.map(k => {
-                        const kit = kitsHoje[k];
-                        if (kit.programado === 0) return 0;
-                        return ((kit.produzido / kit.programado) * 100).toFixed(1);
-                    }),
-                    borderColor: '#27ae60',
-                    backgroundColor: '#27ae60',
-                    yAxisID: 'y1',
-                    tension: 0.3
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            interaction: { mode: 'index', intersect: false },
-            plugins: {
-                legend: { display: false },
-                datalabels: { display: false }
-            },
-            scales: {
-                x: { ticks: { color: '#fff' } },
-                y: {
-                    position: 'left',
-                    ticks: { color: '#fff' },
-                    beginAtZero: true
-                },
-                y1: {
-                    position: 'right',
-                    ticks: {
-                        color: '#fff',
-                        callback: val => val + '%'
-                    },
-                    beginAtZero: true,
-                    max: 100,
-                    grid: { drawOnChartArea: false }
-                }
-            }
-        },
-        plugins: [ChartDataLabels]
-    });
-}
-
+mk('miniStatus', {
+  type:'doughnut',
+  data:{ labels:['A separar','Separando','Parcial','Completo'], datasets:[{ data:statusData, backgroundColor:['#38bdf8','#f59e0b','#fb7185','#22c55e'] }] },
+  options:{
+    responsive:true,
+    maintainAspectRatio:false,
+    animation:false,
+    plugins:{
+      legend:{ position:'bottom', labels:{ color:'#d3ddf4' }},
+      datalabels:{
+        color:'#ffffff',
+        formatter: (value, ctx) => {
+          const total = ctx.dataset.data.reduce((a,b) => a + b, 0) || 1;
+          const pct = ((value / total) * 100).toFixed(0);
+          return `${value} (${pct}%)`;
         }
+      }
+    }
+  }
+});
+mk('miniRanking', { type:'bar', data:{ labels:rankingLabels, datasets:[{ label:'Peças', data:rankingValues, backgroundColor:'#60a5fa' }] }, options:baseOpts });
+mk('miniMes', { type:'line', data:{ labels:diasMes, datasets:[{ label:'Finalizadas', data:separacoesDia, borderColor:'#22c55e', backgroundColor:'rgba(34,197,94,.2)', fill:true, tension:.25 },{ label:'Parciais', data:parciaisDia, borderColor:'#fb7185', backgroundColor:'rgba(251,113,133,.2)', fill:true, tension:.25 }] }, options:baseOpts });
+mk('miniTurno', { type:'bar', data:{ labels:turnoLabels, datasets:[{ label:'DTs', data:turnoValues, backgroundColor:['#38bdf8','#818cf8','#f59e0b'] }] }, options:baseOpts });
 
-        // Carrossel
-        const slides = document.querySelectorAll('.slide');
-let index = 0;
-
-const showSlide = (i) => {
-    slides.forEach(slide => slide.classList.remove('active'));
-    slides[i].classList.add('active');
-};
-
-const nextSlide = () => {
-    index = (index + 1) % slides.length;
-    showSlide(index);
-};
-
-const prevSlide = () => {
-    index = (index - 1 + slides.length) % slides.length;
-    showSlide(index);
-};
-
-document.getElementById('next-slide').addEventListener('click', nextSlide);
-document.getElementById('prev-slide').addEventListener('click', prevSlide);
-
-// auto slide
-setInterval(nextSlide, 60000);
-    });
-    
-    const kitsMensal = @json($kitsMensal);
-
-const diasMes = kitsMensal.map(d => d.dia);
-const programadoMes = kitsMensal.map(d => d.programado);
-const produzidoMes = kitsMensal.map(d => d.produzido);
-
-new Chart(document.getElementById('chartKitsMensal'), {
-    type: 'bar',
-    data: {
-        labels: diasMes,
-        datasets: [
-            {
-                label: 'Programado',
-                data: programadoMes,
-                backgroundColor: '#f39c12',
-            },
-            {
-                label: 'Produzido',
-                data: produzidoMes,
-                backgroundColor: '#27ae60',
-            }
-        ]
+mk('chartRanking', {
+  type:'bar',
+  data:{
+    labels:rankingLabels,
+    datasets:[{ label:'Peças distribuídas', data:rankingValues, backgroundColor:'#3b82f6' }]
+  },
+  options:{
+    ...baseOpts,
+    indexAxis: 'y',
+    scales: {
+      x: {
+        ...baseOpts.scales.y,
+        title: { display: true, text: 'Peças distribuídas', color: '#9db0d2' }
+      },
+      y: {
+        ...baseOpts.scales.x,
+        title: { display: true, text: 'Separador', color: '#9db0d2' }
+      }
     },
-    options: {
-        responsive: true,
-        plugins: {
-            title: {
-                display: true,
-                text: 'Produção de Kits no Mês Atual',
-                color: '#fff'
-            },
-            legend: {
-                labels: {
-                    color: '#fff'
-                }
-            },
-            datalabels: {
-                color: '#fff',
-                anchor: 'end',
-                align: 'top',
-                formatter: Math.round,
-                font: {
-                    weight: 'bold'
-                }
-            }
-        },
-        scales: {
-            x: {
-                ticks: { color: '#fff' }
-            },
-            y: {
-                beginAtZero: true,
-                ticks: { color: '#fff' },
-                title: {
-                    display: true,
-                    text: 'Quantidade',
-                    color: '#fff'
-                }
-            }
-        }
+    plugins: {
+      ...baseOpts.plugins,
+      datalabels: {
+        color:'#f8fbff',
+        font:{ weight:'700', size:12 },
+        anchor:'end',
+        align:'right',
+        formatter:(value) => value
+      }
+    }
+  }
+});
+mk('chartMes', { type:'line', data:{ labels:diasMes, datasets:[{ label:'Finalizadas', data:separacoesDia, borderColor:'#22c55e', backgroundColor:'rgba(34,197,94,.2)', fill:true, tension:.25 },{ label:'Parciais', data:parciaisDia, borderColor:'#fb7185', backgroundColor:'rgba(251,113,133,.2)', fill:true, tension:.25 }] }, options:baseOpts });
+mk('chartTurno', {
+  type:'bar',
+  data:{
+    labels:turnoLabels,
+    datasets:[{
+      label:'DTs iniciadas',
+      data:turnoValues,
+      backgroundColor:['#38bdf8','#818cf8','#f59e0b'],
+      maxBarThickness: 110
+    }]
+  },
+  options:{
+    ...baseOpts,
+    plugins: {
+      ...baseOpts.plugins,
+      legend: { display: true, position: 'bottom', labels: { color: '#d3ddf4' } },
+      datalabels: {
+        color:'#f8fbff',
+        font:{ weight:'700', size:14 },
+        anchor:'end',
+        align:'top',
+        formatter:(value) => value > 0 ? value : ''
+      }
     },
-    plugins: [ChartDataLabels]
+    scales: {
+      x: {
+        ...baseOpts.scales.x,
+        title: { display: true, text: 'Turno', color: '#9db0d2' }
+      },
+      y: {
+        ...baseOpts.scales.y,
+        title: { display: true, text: 'DTs iniciadas', color: '#9db0d2' },
+        ticks: { color: '#c2d0ed', precision: 0, stepSize: 1 }
+      }
+    }
+  }
 });
 
-
+const slides = document.querySelectorAll('.slide');
+let i = 0;
+function show(n){ slides.forEach(s=>s.classList.remove('active')); slides[n].classList.add('active'); }
+function next(){ i = (i+1)%slides.length; show(i); }
+function prev(){ i = (i-1+slides.length)%slides.length; show(i); }
+document.getElementById('next-slide').addEventListener('click', next);
+document.getElementById('prev-slide').addEventListener('click', prev);
+setInterval(next, 25000);
 </script>
-<script>
-    function recarregarPagina() {
-          location.reload();
-        }
-        
-        // Define o intervalo para 5 minutos (5 * 60 * 1000 = 300000 milissegundos)
-        setInterval(recarregarPagina, 300000);
-</script>
-
 @endsection
