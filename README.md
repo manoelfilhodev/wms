@@ -178,6 +178,55 @@ Acesse:
 http://127.0.0.1:8000
 ```
 
+## MVP Atual: Módulo Separação (Picking)
+
+Este repositório está com foco no **MVP de Separação/Picking**.
+
+### Escopo implementado
+
+- Importação de DTs (base SAP) com itens.
+- Filtro automático para DTs com sobra (picking).
+- Bloqueio de SKUs não separáveis.
+- Distribuição da DT por separador (nome livre).
+- Finalização por separador dentro do modal (Parcial/Completa).
+- Status operacional:
+  - A separar
+  - Separando
+  - Separado parcial
+  - Separado completo
+- Dashboard Operacional Picking.
+- Painel TV de Separação (visão geral + slides de detalhe).
+- Tela base de Relatórios com roadmap dos modelos.
+
+### Fluxo operacional (resumo)
+
+1. ADM Sala importa as DTs.
+2. Sistema filtra somente DTs com sobra para o ADM Operacional.
+3. ADM Operacional distribui peças por separador na DT.
+4. Cada separador é finalizado no modal (Parcial/Completa), com tempo individual.
+5. Indicadores são atualizados no Dashboard/Painel TV.
+
+### SKUs bloqueados
+
+`1101, 1163, 1112, 1312, 22291, 22298, 22307, 22308, 21842, 40285, 22297`
+
+### Rotas principais do módulo
+
+- `/demandas/operacional`
+- `/demandas/dashboard-operacional`
+- `/demandas/relatorios`
+- `/painel-tv`
+
+### Checklist rápido de validação (in loco)
+
+1. Importar base de DTs.
+2. Confirmar lista apenas com DTs picking.
+3. Abrir uma DT, distribuir para 2 separadores.
+4. Finalizar separadores em horários diferentes.
+5. Conferir tempo individual no modal.
+6. Conferir status da DT e dashboard.
+7. Abrir painel TV em tela cheia.
+
 ## API e Documentação Técnica
 
 A API utiliza Sanctum para autenticação por token e Scribe para documentação técnica.
