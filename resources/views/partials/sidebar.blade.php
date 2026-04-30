@@ -41,6 +41,15 @@
                         <span> Painel TV </span>
                     </a>
                 </li>
+
+                @if (session('tipo') === 'admin')
+                    <li class="side-nav-item">
+                        <a href="{{ route('usuarios.index') }}" class="side-nav-link {{ request()->routeIs('usuarios.*') ? 'active' : '' }}">
+                            <i class="mdi mdi-account-group-outline"></i>
+                            <span> Usuarios </span>
+                        </a>
+                    </li>
+                @endif
             </ul>
         </div>
     </div>

@@ -14,37 +14,50 @@ class UsuarioSeeder extends Seeder
      * @return void
      */
     public function run()
-{
-    $unidadeId = DB::table('_tb_unidades')->where('nome', 'Unidade Central')->value('id');
-    if (!$unidadeId) {
-        $unidadeId = DB::table('_tb_unidades')->min('id');
-    }
+    {
+        $unidadeId = DB::table('_tb_unidades')->where('nome', 'Unidade Central')->value('id');
+        if (! $unidadeId) {
+            $unidadeId = DB::table('_tb_unidades')->min('id');
+        }
 
-    DB::table('_tb_usuarios')->insert([
-        [
-            'nome' => 'Admin User',
-            'email' => 'admin@wms.com',
-            'password' => bcrypt('admin123'),
-            'tipo_usuario' => 'admin',
-            'status' => 'ativo',
-            'unidade_id' => $unidadeId,
-        ],
-        [
-            'nome' => 'Operador 1',
-            'email' => 'operador1@wms.com',
-            'password' => bcrypt('operador123'),
-            'tipo_usuario' => 'operador',
-            'status' => 'ativo',
-            'unidade_id' => $unidadeId,
-        ],
-        [
-            'nome' => 'Gerente 1',
-            'email' => 'gerente1@wms.com',
-            'password' => bcrypt('gerente123'),
-            'tipo_usuario' => 'gerente',
-            'status' => 'ativo',
-            'unidade_id' => $unidadeId,
-        ],
-    ]);
-}
+        $usuarios = [
+            [
+                'nome' => 'Admin Teste',
+                'email' => 'admin@wms.com',
+                'password' => Hash::make('admin123'),
+                'tipo' => 'admin',
+                'tipo_usuario' => 'admin',
+                'nivel' => 'Admin',
+                'status' => 'ativo',
+                'unidade_id' => $unidadeId,
+            ],
+            [
+                'nome' => 'Operador Teste',
+                'email' => 'operador1@wms.com',
+                'password' => Hash::make('operador123'),
+                'tipo' => 'operador',
+                'tipo_usuario' => 'operador',
+                'nivel' => 'Operador',
+                'status' => 'ativo',
+                'unidade_id' => $unidadeId,
+            ],
+            [
+                'nome' => 'Gerente Teste',
+                'email' => 'gerente1@wms.com',
+                'password' => Hash::make('gerente123'),
+                'tipo' => 'gestor',
+                'tipo_usuario' => 'gestor',
+                'nivel' => 'Gestor',
+                'status' => 'ativo',
+                'unidade_id' => $unidadeId,
+            ],
+        ];
+
+        foreach ($usuarios as $usuario) {
+            DB::table('_tb_usuarios')->updateOrInsert(
+                ['email' => $usuario['email']],
+                array_merge($usuario, ['updated_at' => now()])
+            );
+        }
+    }
 }

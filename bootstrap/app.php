@@ -38,6 +38,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->api(append: [
             App\Http\Middleware\ApiRequestLogger::class,
         ]);
+        $middleware->alias([
+            'admin' => App\Http\Middleware\AdminMiddleware::class,
+            'demanda.perfil' => App\Http\Middleware\DemandaPerfilMiddleware::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $isApiRequest = static fn (Request $request): bool =>
@@ -109,4 +113,3 @@ return Application::configure(basePath: dirname(__DIR__))
             ], $statusCode);
         });
     })->create();
-
