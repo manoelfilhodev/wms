@@ -18,8 +18,8 @@ return new class extends Migration
             $table->integer('quantidade_produzida')->nullable();
             $table->integer('apontado_por')->nullable();
             $table->dateTime('apontado_em')->nullable();
-            $table->integer('usuario_id')->nullable()->index('usuario_id');
-            $table->integer('unidade_id')->nullable()->index('idx_kit_montagem_unidade');
+            $table->integer('usuario_id')->nullable()->index();
+            $table->integer('unidade_id')->nullable()->index();
             $table->integer('programado_por')->nullable();
             $table->dateTime('programado_em')->nullable();
             $table->date('data_montagem');

@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('_tb_contagem_itens', function (Blueprint $table) {
             $table->integer('id', true);
-            $table->string('codigo_material', 20)->index('fk_contagem_itens');
+            $table->string('codigo_material', 20)->index();
             $table->integer('quantidade');
-            $table->integer('usuario_id')->nullable()->index('usuario_id');
-            $table->integer('unidade_id')->nullable()->index('idx_paletes_unidade');
+            $table->integer('usuario_id')->nullable()->index();
+            $table->integer('unidade_id')->nullable()->index();
             $table->timestamp('data_contagem')->useCurrent();
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->nullable();

@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('_tb_armazenagem', function (Blueprint $table) {
             $table->integer('id', true);
-            $table->string('sku', 100)->index('idx_armazenagem_sku');
+            $table->string('sku', 100)->index();
             $table->integer('quantidade');
-            $table->string('endereco', 50)->index('idx_armazenagem_endereco');
+            $table->string('endereco', 50)->index();
             $table->text('observacoes')->nullable();
-            $table->integer('usuario_id')->index('usuario_id');
+            $table->integer('usuario_id')->index();
             $table->timestamp('data_armazenagem')->useCurrent();
-            $table->integer('unidade_id')->index('idx_armazenagem_unidade');
+            $table->integer('unidade_id')->index();
         });
     }
 

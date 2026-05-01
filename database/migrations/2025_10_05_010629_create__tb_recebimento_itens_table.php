@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('_tb_recebimento_itens', function (Blueprint $table) {
             $table->integer('id', true);
-            $table->integer('recebimento_id')->index('recebimento_id');
+            $table->integer('recebimento_id')->index();
             $table->string('sku', 100)->nullable();
             $table->string('descricao')->nullable();
             $table->integer('quantidade')->nullable();
             $table->enum('status', ['pendente', 'conferido', 'armazenado'])->nullable()->default('pendente');
-            $table->integer('usuario_id')->index('usuario_id');
-            $table->integer('unidade_id')->index('unidade_id');
+            $table->integer('usuario_id')->index();
+            $table->integer('unidade_id')->index();
             $table->timestamp('created_at')->useCurrent();
             $table->string('ean', 50)->nullable();
             $table->decimal('valor_unitario', 10)->nullable();

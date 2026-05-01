@@ -13,6 +13,7 @@ class Demanda extends Model
 
     protected $fillable = [
         'fo',
+        'stage',
         'cliente',
         'transportadora',
         'doca',

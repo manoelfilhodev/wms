@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('_tb_pedidos', function (Blueprint $table) {
             $table->integer('id', true);
             $table->string('numero_pedido', 50);
-            $table->integer('unidade_id')->index('unidade_id');
+            $table->integer('unidade_id')->index();
             $table->enum('status', ['pendente', 'em_separacao', 'concluido', 'cancelado'])->nullable()->default('pendente');
-            $table->integer('criado_por')->nullable()->index('criado_por');
+            $table->integer('criado_por')->nullable()->index();
             $table->timestamp('data_criacao')->useCurrent();
         });
     }

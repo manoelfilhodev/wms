@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('_tb_movimentos_ativos', function (Blueprint $table) {
             $table->integer('id', true);
-            $table->string('codigo_movimento', 10)->unique('codigo_movimento');
+            $table->string('codigo_movimento', 10)->unique();
             $table->string('descricao_movimento')->nullable();
             $table->boolean('ativo')->nullable()->default(true);
             $table->timestamp('created_at')->useCurrent();

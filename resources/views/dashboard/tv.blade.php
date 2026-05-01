@@ -47,6 +47,10 @@
   </section>
 
   <section class="slide">
+    <div class="panel"><h3>Top pickers (SKUs separados)</h3><canvas id="chartRankingSkus"></canvas></div>
+  </section>
+
+  <section class="slide">
     <div class="panel"><h3>Finalizações por dia no mês (completo x parcial)</h3><canvas id="chartMes"></canvas></div>
   </section>
 
@@ -70,6 +74,8 @@ const statusData = {!! json_encode([
 ]) !!};
 const rankingLabels = {!! json_encode(collect($ranking)->pluck('nome')->values()->all()) !!};
 const rankingValues = {!! json_encode(collect($ranking)->pluck('total')->map(function ($v) { return (int) $v; })->values()->all()) !!};
+const rankingSkusLabels = {!! json_encode(collect($rankingSkus)->pluck('nome')->values()->all()) !!};
+const rankingSkusValues = {!! json_encode(collect($rankingSkus)->pluck('total')->map(function ($v) { return (int) $v; })->values()->all()) !!};
 const diasMes = @json($diasMes);
 const separacoesDia = @json($separacoesDia);
 const parciaisDia = @json($parciaisDia);
@@ -144,6 +150,37 @@ mk('chartRanking', {
       y: {
         ...baseOpts.scales.x,
         title: { display: true, text: 'Separador', color: '#9db0d2' }
+      }
+    },
+    plugins: {
+      ...baseOpts.plugins,
+      datalabels: {
+        color:'#f8fbff',
+        font:{ weight:'700', size:12 },
+        anchor:'end',
+        align:'right',
+        formatter:(value) => value
+      }
+    }
+  }
+});
+mk('chartRankingSkus', {
+  type:'bar',
+  data:{
+    labels:rankingSkusLabels,
+    datasets:[{ label:'SKUs separados', data:rankingSkusValues, backgroundColor:'#22c55e' }]
+  },
+  options:{
+    ...baseOpts,
+    indexAxis: 'y',
+    scales: {
+      x: {
+        ...baseOpts.scales.y,
+        title: { display: true, text: 'SKUs separados', color: '#9db0d2' }
+      },
+      y: {
+        ...baseOpts.scales.x,
+        title: { display: true, text: 'Picker', color: '#9db0d2' }
       }
     },
     plugins: {

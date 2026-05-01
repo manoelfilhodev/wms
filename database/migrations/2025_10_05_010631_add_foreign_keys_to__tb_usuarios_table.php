@@ -12,6 +12,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (DB::getDriverName() === 'sqlite') {
+            return;
+        }
+
         $database = DB::getDatabaseName();
 
         $hasConstraint = DB::table('information_schema.TABLE_CONSTRAINTS')
@@ -41,6 +45,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        if (DB::getDriverName() === 'sqlite') {
+            return;
+        }
+
         Schema::table('_tb_usuarios', function (Blueprint $table) {
             try {
                 $table->dropForeign('_tb_usuarios_ibfk_1');

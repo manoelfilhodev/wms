@@ -17,8 +17,8 @@ return new class extends Migration
             $table->text('mensagem')->nullable();
             $table->enum('status', ['pendente', 'visualizada', 'resolvida'])->nullable()->default('pendente');
             $table->enum('tipo', ['info', 'alerta', 'urgente'])->nullable()->default('info');
-            $table->integer('destino_unidade_id')->nullable()->index('destino_unidade_id');
-            $table->integer('destino_usuario_id')->nullable()->index('destino_usuario_id');
+            $table->integer('destino_unidade_id')->nullable()->index();
+            $table->integer('destino_usuario_id')->nullable()->index();
             $table->boolean('lida')->nullable()->default(false);
             $table->timestamp('created_at')->useCurrent();
         });

@@ -18,11 +18,11 @@ return new class extends Migration
             $table->enum('status', ['GERADO', 'APONTADO', 'CANCELADO'])->nullable()->default('GERADO');
             $table->date('data');
             $table->unsignedBigInteger('user_id');
-            $table->integer('apontado_por')->nullable()->index('fk_apontado_por');
+            $table->integer('apontado_por')->nullable()->index();
             $table->string('unidade', 100);
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrentOnUpdate()->useCurrent();
-            $table->string('palete_uid', 50)->nullable()->unique('palete_uid');
+            $table->string('palete_uid', 50)->nullable()->unique();
         });
     }
 

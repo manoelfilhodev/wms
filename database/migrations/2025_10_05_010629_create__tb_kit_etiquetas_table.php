@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('_tb_kit_etiquetas', function (Blueprint $table) {
             $table->integer('id', true);
-            $table->integer('id_kit')->index('fk_kit');
+            $table->integer('id_kit')->index();
             $table->string('sku', 100);
             $table->string('ean', 50)->nullable();
             $table->string('descricao');

@@ -13,17 +13,17 @@ return new class extends Migration
     {
         Schema::create('_tb_separacao_itens', function (Blueprint $table) {
             $table->integer('id', true);
-            $table->integer('pedido_id')->index('pedido_id');
-            $table->integer('separacao_id')->nullable()->index('separacao_id');
+            $table->integer('pedido_id')->index();
+            $table->integer('separacao_id')->nullable()->index();
             $table->string('sku', 100);
             $table->integer('quantidade');
             $table->integer('quantidade_separada')->nullable();
             $table->text('observacoes')->nullable();
             $table->string('centro', 20)->nullable();
             $table->string('fo', 20)->nullable();
-            $table->integer('usuario_id')->index('usuario_id');
+            $table->integer('usuario_id')->index();
             $table->integer('coletado_por')->nullable();
-            $table->integer('unidade_id')->index('unidade_id');
+            $table->integer('unidade_id')->index();
             $table->boolean('conferido')->nullable()->default(false);
             $table->enum('status', ['ABERTA', 'FINALIZADA'])->nullable()->default('ABERTA');
             $table->timestamp('data_separacao')->nullable();

@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('unidade', 100)->nullable()->default('default');
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrentOnUpdate()->nullable();
-            $table->string('palete_uid', 50)->unique('palete_uid');
+            $table->string('palete_uid', 50)->unique();
         });
     }
 

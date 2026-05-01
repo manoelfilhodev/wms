@@ -15,6 +15,12 @@
             </div>
         </div>
         <div class="d-flex gap-2">
+            <a href="{{ route('demandas.reportTurno') }}" class="btn btn-primary btn-sm">
+                <i class="mdi mdi-whatsapp me-1"></i> Report de turno
+            </a>
+            <a href="{{ route('demandas.identificacaoA4') }}" class="btn btn-outline-secondary btn-sm">
+                <i class="mdi mdi-printer-outline me-1"></i> Identificação A4
+            </a>
             <a href="{{ route('demandas.dashboardOperacional') }}" class="btn btn-outline-secondary btn-sm">Voltar dashboard</a>
             <a href="{{ route('demandas.relatorios') }}" class="btn btn-outline-secondary btn-sm">Atualizar</a>
         </div>
@@ -40,6 +46,24 @@
             <p class="text-muted small mb-3">Base principal: DT, SKU e Quantidade (incluindo itens com sobra/picking).</p>
 
             <div class="row g-3">
+                <div class="col-md-6">
+                    <a href="{{ route('demandas.reportTurno') }}" class="text-decoration-none text-reset">
+                        <div class="border rounded p-3 h-100">
+                            <h6 class="mb-2">Report de Turno para WhatsApp</h6>
+                            <p class="small text-muted mb-2">Resumo por separador com peças, SKUs, BOX e DT para print ao fim do turno.</p>
+                            <small class="text-primary">Abrir report printável</small>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-6">
+                    <a href="{{ route('demandas.identificacaoA4') }}" class="text-decoration-none text-reset">
+                        <div class="border rounded p-3 h-100">
+                            <h6 class="mb-2">Identificação A4 para DT</h6>
+                            <p class="small text-muted mb-2">Folha A4 com duas vias iguais para cortar no meio: DT, pallets, data e conferente.</p>
+                            <small class="text-primary">Abrir impressão</small>
+                        </div>
+                    </a>
+                </div>
                 <div class="col-md-6">
                     <div class="border rounded p-3 h-100">
                         <h6 class="mb-2">1) Curva ABC de SKUs</h6>
@@ -80,6 +104,13 @@
                         <h6 class="mb-2">6) Cobertura por SKU</h6>
                         <p class="small text-muted mb-2">Frequência e volume por item no picking.</p>
                         <small class="text-muted">Saída esperada: SKU, Nº de DTs atendidas, Qtd total separada, média por DT.</small>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="border rounded p-3 h-100">
+                        <h6 class="mb-2">7) DTs terminadas após a data de criação</h6>
+                        <p class="small text-muted mb-2">Acompanhamento das DTs concluídas em data posterior à data de criação.</p>
+                        <small class="text-muted">Saída esperada: DT, data de criação, data de conclusão, duração, status final e responsável.</small>
                     </div>
                 </div>
             </div>

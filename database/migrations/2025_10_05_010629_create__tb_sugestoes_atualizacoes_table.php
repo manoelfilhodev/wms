@@ -17,7 +17,7 @@ return new class extends Migration
             $table->text('descricao');
             $table->enum('status', ['pendente', 'em_andamento', 'concluida', 'recusada'])->nullable()->default('pendente');
             $table->text('resposta')->nullable();
-            $table->integer('criado_por')->index('criado_por');
+            $table->integer('criado_por')->index();
             $table->timestamp('created_at')->nullable()->useCurrent();
             $table->timestamp('updated_at')->useCurrentOnUpdate()->nullable()->useCurrent();
         });

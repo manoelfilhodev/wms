@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('_tb_expedicao', function (Blueprint $table) {
             $table->integer('id', true);
-            $table->integer('unidade_id')->index('idx_expedicao_unidade');
-            $table->string('pedido_numero', 50)->index('idx_expedicao_pedido');
+            $table->integer('unidade_id')->index();
+            $table->string('pedido_numero', 50)->index();
             $table->string('cliente', 100)->nullable();
             $table->enum('status', ['pendente', 'em_separacao', 'expedido'])->nullable()->default('pendente');
             $table->timestamp('data_expedicao')->useCurrent();
-            $table->integer('usuario_id')->nullable()->index('usuario_id');
+            $table->integer('usuario_id')->nullable()->index();
         });
     }
 

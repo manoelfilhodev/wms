@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Schema;
 
 class DashboardController extends Controller
 {
@@ -19,6 +20,10 @@ class DashboardController extends Controller
 
     public function index()
 {
+    if (Schema::hasTable('_tb_demanda')) {
+        return redirect()->route('demandas.dashboardOperacional');
+    }
+
     $hoje = Carbon::today();
 
     $totais             = $this->dashboardService->getTotaisGerais();

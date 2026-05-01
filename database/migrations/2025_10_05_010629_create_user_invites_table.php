@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('user_invites', function (Blueprint $table) {
             $table->integer('id', true);
-            $table->string('token', 64)->nullable()->unique('token');
+            $table->string('token', 64)->nullable()->unique();
             $table->string('email')->nullable();
             $table->string('nivel_padrao', 50)->nullable()->default('Expedicao');
             $table->string('unidade_padrao', 100)->nullable();

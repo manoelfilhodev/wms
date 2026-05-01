@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('ficha', 50)->nullable();
             $table->string('sku', 50)->nullable();
             $table->integer('quantidade')->nullable();
-            $table->integer('contado_por')->nullable()->index('contado_por');
+            $table->integer('contado_por')->nullable()->index();
             $table->timestamp('data_hora')->useCurrent();
         });
     }

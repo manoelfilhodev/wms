@@ -12,6 +12,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (DB::getDriverName() === 'sqlite') {
+            return;
+        }
+
         $database = DB::getDatabaseName();
 
         $hasConstraint = static function (string $constraintName) use ($database): bool {
@@ -56,6 +60,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        if (DB::getDriverName() === 'sqlite') {
+            return;
+        }
+
         Schema::table('_tb_user_logs', function (Blueprint $table) {
             if (Schema::hasColumn('_tb_user_logs', 'usuario_id')) {
                 try {

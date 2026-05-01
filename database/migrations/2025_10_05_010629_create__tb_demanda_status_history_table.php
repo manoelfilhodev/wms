@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('_tb_demanda_status_history', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedBigInteger('demanda_id')->nullable()->index('fk_demanda');
+            $table->unsignedBigInteger('demanda_id')->nullable()->index();
             $table->string('status', 50)->nullable();
-            $table->integer('changed_by')->nullable()->index('fk_user');
+            $table->integer('changed_by')->nullable()->index();
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrentOnUpdate()->useCurrent();
         });

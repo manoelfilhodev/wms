@@ -9,6 +9,8 @@ return new class extends Migration
 {
     public function up(): void
     {
+        $isSqlite = DB::getDriverName() === 'sqlite';
+
         Schema::table('_tb_usuarios', function (Blueprint $table) {
             if (! Schema::hasColumn('_tb_usuarios', 'unidade_id')) {
                 $table->integer('unidade_id')->nullable();
@@ -28,6 +30,10 @@ return new class extends Migration
                 DB::statement('ALTER TABLE `_tb_usuarios` MODIFY `unidade_id` INT NOT NULL');
             } catch (\Throwable $exception) {
             }
+        }
+
+        if ($isSqlite) {
+            return;
         }
 
         try {
@@ -51,6 +57,10 @@ return new class extends Migration
 
     public function down(): void
     {
+        if (DB::getDriverName() === 'sqlite') {
+            return;
+        }
+
         Schema::table('_tb_usuarios', function (Blueprint $table) {
             if (Schema::hasColumn('_tb_usuarios', 'unidade_id')) {
                 $table->dropColumn('unidade_id');

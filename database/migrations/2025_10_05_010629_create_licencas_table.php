@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('licencas', function (Blueprint $table) {
             $table->integer('id', true);
-            $table->string('chave', 100)->unique('chave');
+            $table->string('chave', 100)->unique();
             $table->string('cliente');
             $table->dateTime('validade');
             $table->enum('status', ['ativo', 'inativo'])->nullable()->default('ativo');

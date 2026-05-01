@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('_tb_respostas_sugestoes', function (Blueprint $table) {
             $table->integer('id', true);
-            $table->integer('sugestao_id')->index('sugestao_id');
+            $table->integer('sugestao_id')->index();
             $table->text('resposta');
             $table->enum('status', ['pendente', 'em_andamento', 'concluida', 'recusada']);
-            $table->integer('respondido_por')->index('respondido_por');
+            $table->integer('respondido_por')->index();
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrentOnUpdate()->nullable()->useCurrent();
         });

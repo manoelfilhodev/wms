@@ -162,35 +162,57 @@ class DashboardService
         // Armazenagem
         $armazenagem = DB::table('_tb_armazenagem as a')
             ->join('_tb_usuarios as u', 'a.usuario_id', '=', 'u.id_user')
-            ->select(
-                DB::raw("CONCAT(UCASE(SUBSTRING_INDEX(u.nome, ' ', 1)), ' ', UCASE(SUBSTRING_INDEX(u.nome, ' ', -1))) as nome"),
-                DB::raw('SUM(a.quantidade) as total')
-            )
+            ->select('u.nome', DB::raw('SUM(a.quantidade) as total'))
             ->whereBetween('a.data_armazenagem', [$inicio, $hoje])
             ->groupBy('u.nome')
             ->orderByDesc('total')
             ->limit(5)
             ->get()
+            ->map(function ($item) {
+                $item->nome = $this->formatarNomeCurto($item->nome);
+                return $item;
+            })
+            ->values()
             ->toArray();
 
-        // SeparaÃ§Ã£o
+        // Separacao
         $separacao = DB::table('_tb_separacao_itens as s')
             ->join('_tb_usuarios as u', 's.coletado_por', '=', 'u.id_user')
-            ->select(
-                DB::raw("CONCAT(UCASE(SUBSTRING_INDEX(u.nome, ' ', 1)), ' ', UCASE(SUBSTRING_INDEX(u.nome, ' ', -1))) as nome"),
-                DB::raw('SUM(s.quantidade_separada) as total')
-            )
+            ->select('u.nome', DB::raw('SUM(s.quantidade_separada) as total'))
             ->whereBetween('s.data_separacao', [$inicio, now()])
             ->groupBy('u.nome')
             ->orderByDesc('total')
             ->limit(5)
             ->get()
+            ->map(function ($item) {
+                $item->nome = $this->formatarNomeCurto($item->nome);
+                return $item;
+            })
+            ->values()
             ->toArray();
 
         return [
             'armazenagem' => $armazenagem,
             'separacao'   => $separacao,
         ];
+    }
+
+    private function formatarNomeCurto(?string $nome): string
+    {
+        $nome = trim((string) $nome);
+        if ($nome === '') {
+            return '-';
+        }
+
+        $partes = preg_split('/\s+/', $nome) ?: [];
+        $primeiro = strtoupper($partes[0] ?? '');
+        $ultimo = strtoupper(end($partes) ?: '');
+
+        if ($primeiro === $ultimo || $ultimo === '') {
+            return $primeiro;
+        }
+
+        return "{$primeiro} {$ultimo}";
     }
 
     public function getResumoDoDia(): array

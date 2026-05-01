@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('_tb_materiais_multipack', function (Blueprint $table) {
             $table->integer('id', true);
-            $table->string('sku', 100)->unique('sku');
+            $table->string('sku', 100)->unique();
             $table->string('descricao')->nullable();
             $table->integer('fator_embalagem')->default(1);
             $table->timestamp('created_at')->useCurrent();

@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('_tb_etiquetas_sep_hydra_metais', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->integer('usuario_id')->nullable()->index('fk_usuario_etiqueta');
-            $table->integer('pedido_id')->nullable()->index('fk_pedido_etiqueta');
+            $table->integer('usuario_id')->nullable()->index();
+            $table->integer('pedido_id')->nullable()->index();
             $table->string('fo', 50)->nullable();
             $table->string('remessa', 100)->nullable();
             $table->string('recebedor', 100)->nullable();

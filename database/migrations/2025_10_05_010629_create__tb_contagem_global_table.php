@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('_tb_contagem_global', function (Blueprint $table) {
             $table->integer('id', true);
-            $table->integer('unidade_id')->index('unidade_id');
-            $table->integer('material_id')->index('material_id');
+            $table->integer('unidade_id')->index();
+            $table->integer('material_id')->index();
             $table->enum('tipo_contagem', ['1contagem', '2contagem', '3contagem']);
             $table->integer('quantidade_contada')->nullable();
-            $table->integer('usuario_id')->nullable()->index('usuario_id');
+            $table->integer('usuario_id')->nullable()->index();
             $table->timestamp('data_contagem')->useCurrent();
         });
     }

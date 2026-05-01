@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('_tb_inventario_itens', function (Blueprint $table) {
             $table->integer('id', true);
-            $table->integer('id_inventario')->nullable()->index('id_inventario');
+            $table->integer('id_inventario')->nullable()->index();
             $table->string('sku', 100)->nullable();
             $table->string('descricao')->nullable();
             $table->string('posicao', 50)->nullable();

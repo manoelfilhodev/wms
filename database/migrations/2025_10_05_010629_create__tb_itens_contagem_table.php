@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('_tb_itens_contagem', function (Blueprint $table) {
             $table->integer('id', true);
-            $table->string('codigo_material', 20)->unique('codigo_material');
+            $table->string('codigo_material', 20)->unique();
             $table->string('descricao');
         });
     }

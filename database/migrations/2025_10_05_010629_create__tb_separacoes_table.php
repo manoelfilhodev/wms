@@ -13,14 +13,14 @@ return new class extends Migration
     {
         Schema::create('_tb_separacoes', function (Blueprint $table) {
             $table->integer('id', true);
-            $table->integer('pedido_id')->nullable()->index('pedido_id');
-            $table->string('pedido', 50)->index('idx_pedido');
-            $table->string('sku', 100)->index('idx_sku');
+            $table->integer('pedido_id')->nullable()->index();
+            $table->string('pedido', 50)->index();
+            $table->string('sku', 100)->index();
             $table->integer('quantidade');
-            $table->string('endereco', 50)->index('idx_endereco');
+            $table->string('endereco', 50)->index();
             $table->text('observacoes')->nullable();
-            $table->integer('usuario_id')->index('usuario_id');
-            $table->integer('unidade_id')->index('idx_unidade');
+            $table->integer('usuario_id')->index();
+            $table->integer('unidade_id')->index();
             $table->timestamp('data_separacao')->useCurrent();
         });
     }

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('_tb_recebimento_etiquetas', function (Blueprint $table) {
             $table->integer('id', true);
-            $table->integer('id_recebimento')->index('id_recebimento');
+            $table->integer('id_recebimento')->index();
             $table->string('sku', 100);
             $table->string('ean', 50);
             $table->string('descricao');

@@ -15,6 +15,7 @@ class DemandaDistribuicao extends Model
         'demanda_id',
         'separador_nome',
         'quantidade_pecas',
+        'quantidade_skus',
         'finalizado_em',
         'resultado',
     ];

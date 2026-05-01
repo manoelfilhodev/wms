@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('_tb_posicoes', function (Blueprint $table) {
             $table->integer('id', true);
-            $table->string('codigo_posicao', 20)->unique('codigo_posicao');
-            $table->string('setor', 50)->nullable()->index('idx_posicao_setor');
-            $table->integer('unidade_id')->index('idx_posicao_unidade');
+            $table->string('codigo_posicao', 20)->unique();
+            $table->string('setor', 50)->nullable()->index();
+            $table->integer('unidade_id')->index();
             $table->enum('status', ['ativa', 'inativa'])->nullable()->default('ativa');
             $table->timestamp('created_at')->useCurrent();
 

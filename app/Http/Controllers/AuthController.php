@@ -63,7 +63,7 @@ class AuthController extends Controller
 
         return $usuario->tipo === 'operador'
             ? redirect()->route('painel.operador')
-            : redirect()->intended('/dashboard');
+            : redirect()->route('demandas.dashboardOperacional');
     }
 
     public function logout(Request $request)

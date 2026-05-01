@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('_tb_doca_saida', function (Blueprint $table) {
             $table->integer('id', true);
-            $table->integer('sku_id')->index('sku_id');
+            $table->integer('sku_id')->index();
             $table->integer('quantidade');
-            $table->string('posicao', 50)->nullable()->index('posicao');
+            $table->string('posicao', 50)->nullable()->index();
             $table->integer('unidade_id');
             $table->integer('usuario_id');
-            $table->integer('pedido_id')->index('pedido_id');
+            $table->integer('pedido_id')->index();
             $table->timestamp('created_at')->useCurrent();
         });
     }

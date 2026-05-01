@@ -16,8 +16,8 @@ return new class extends Migration
             $table->string('numero_nf', 50);
             $table->integer('qtd_skus');
             $table->date('data_chegada');
-            $table->integer('usuario_id')->nullable()->index('usuario_id');
-            $table->integer('unidade_id')->nullable()->index('idx_container_unidade');
+            $table->integer('usuario_id')->nullable()->index();
+            $table->integer('unidade_id')->nullable()->index();
             $table->timestamp('created_at')->useCurrent();
         });
     }

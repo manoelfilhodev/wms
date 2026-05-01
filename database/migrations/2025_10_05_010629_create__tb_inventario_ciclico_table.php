@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('_tb_inventario_ciclico', function (Blueprint $table) {
             $table->integer('id', true);
-            $table->string('cod_requisicao', 20)->nullable()->unique('cod_requisicao');
+            $table->string('cod_requisicao', 20)->nullable()->unique();
             $table->date('data_requisicao')->nullable();
             $table->enum('status', ['aberta', 'contando', 'contado', 'concluida'])->nullable()->default('aberta');
             $table->string('usuario_criador', 100)->nullable();

@@ -15,8 +15,8 @@ return new class extends Migration
             $table->integer('id', true);
             $table->string('sku', 100);
             $table->integer('quantidade');
-            $table->integer('usuario_id')->nullable()->index('usuario_id');
-            $table->integer('unidade_id')->nullable()->index('idx_ciclica_unidade');
+            $table->integer('usuario_id')->nullable()->index();
+            $table->integer('unidade_id')->nullable()->index();
             $table->date('data_contagem');
             $table->timestamp('created_at')->useCurrent();
         });

@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('_tb_recebimento', function (Blueprint $table) {
             $table->integer('id', true);
-            $table->integer('unidade_id')->index('unidade_id');
+            $table->integer('unidade_id')->index();
             $table->string('nota_fiscal', 50)->nullable();
             $table->string('fornecedor', 100)->nullable();
             $table->date('data_recebimento')->nullable();
-            $table->integer('usuario_id')->nullable()->index('usuario_id');
+            $table->integer('usuario_id')->nullable()->index();
             $table->enum('status', ['pendente', 'conferido', 'armazenado'])->nullable()->default('pendente');
             $table->timestamp('created_at')->useCurrent();
             $table->string('transportadora', 100)->nullable();

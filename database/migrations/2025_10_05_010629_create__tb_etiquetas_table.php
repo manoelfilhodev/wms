@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('_tb_etiquetas', function (Blueprint $table) {
             $table->integer('id', true);
-            $table->integer('unidade_id')->index('unidade_id');
-            $table->integer('material_id')->index('material_id');
-            $table->string('codigo_barra', 100)->nullable()->index('idx_etiqueta_codigo');
+            $table->integer('unidade_id')->index();
+            $table->integer('material_id')->index();
+            $table->string('codigo_barra', 100)->nullable()->index();
             $table->string('numero_palete', 50)->nullable();
             $table->timestamp('data_emissao')->useCurrent();
         });

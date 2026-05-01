@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('_tb_produtividade_operador', function (Blueprint $table) {
             $table->integer('id', true);
-            $table->integer('usuario_id')->index('idx_produtividade_usuario');
-            $table->integer('unidade_id')->index('idx_produtividade_unidade');
+            $table->integer('usuario_id')->index();
+            $table->integer('unidade_id')->index();
             $table->string('setor', 100)->nullable();
             $table->integer('tarefas_executadas')->nullable()->default(0);
             $table->date('data_registro')->nullable();

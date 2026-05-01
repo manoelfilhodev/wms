@@ -25,6 +25,9 @@
             <a href="{{ route('demandas.relatorios') }}" class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" title="Relatórios operacionais">
                 <i class="mdi mdi-file-chart-outline"></i> Relatórios
             </a>
+            <a href="{{ route('demandas.identificacaoA4') }}" class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" title="Imprimir identificação A4">
+                <i class="mdi mdi-printer-outline"></i> Identificação
+            </a>
             <a href="{{ route('demandas.create') }}" class="btn btn-primary btn-sm" data-bs-toggle="tooltip" title="Lançar nova demanda">
                 <i class="mdi mdi-plus me-1"></i> Nova
             </a>
@@ -53,10 +56,26 @@
         </div>
     @endif
 
+    @if(!empty($modoOperacional) && !empty($resumoOperacional))
+        <div class="alert alert-secondary border-0 shadow-sm small d-flex flex-wrap gap-3 align-items-center" role="status">
+            <span>DTs geradas no período: <strong>{{ $resumoOperacional['geradas'] }}</strong></span>
+            <span>Entram no picking: <strong>{{ $resumoOperacional['picking'] }}</strong></span>
+            @if($resumoOperacional['fora_picking'] > 0)
+                <span>Fora do picking: <strong>{{ $resumoOperacional['fora_picking'] }}</strong></span>
+            @endif
+            @if(($resumoOperacional['finalizadas_fora_data_criacao'] ?? 0) > 0)
+                <span>Finalizadas fora da data de criação: <strong>{{ $resumoOperacional['finalizadas_fora_data_criacao'] }}</strong></span>
+            @endif
+        </div>
+    @endif
+
     <!-- Card de Filtros (padrão gestão de estoque) -->
     <div class="card shadow-sm border-0 mb-4">
         <div class="card-body">
             <form method="GET" action="{{ route('demandas.index') }}" class="row g-3">
+                @if(!empty($modoOperacional))
+                    <input type="hidden" name="somente_sobra" value="1">
+                @endif
                 <div class="col-md-2">
                     <label class="form-label small text-muted mb-1">DT</label>
                     <div class="input-group">
@@ -66,15 +85,17 @@
                         <input type="text" name="fo" class="form-control border-start-0" placeholder="Digite a DT" value="{{ request('fo') }}">
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <label class="form-label small text-muted mb-1">Transportadora</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-light border-end-0">
-                            <i class="mdi mdi-truck-outline text-muted"></i>
-                        </span>
-                        <input type="text" name="transportadora" class="form-control border-start-0" placeholder="Nome da transportadora" value="{{ request('transportadora') }}">
+                @if(empty($modoOperacional))
+                    <div class="col-md-3">
+                        <label class="form-label small text-muted mb-1">Transportadora</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0">
+                                <i class="mdi mdi-truck-outline text-muted"></i>
+                            </span>
+                            <input type="text" name="transportadora" class="form-control border-start-0" placeholder="Nome da transportadora" value="{{ request('transportadora') }}">
+                        </div>
                     </div>
-                </div>
+                @endif
                 <div class="col-md-2">
                     <label class="form-label small text-muted mb-1">Status</label>
                     <div class="input-group">
@@ -108,12 +129,32 @@
                         <input type="date" name="data_fim" class="form-control border-start-0" value="{{ request('data_fim') }}">
                     </div>
                 </div>
+                <div class="col-md-2">
+                    <label class="form-label small text-muted mb-1">Ordenar</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light">
+                            <i class="mdi mdi-sort"></i>
+                        </span>
+                        <select name="ordem" class="form-select">
+                            <option value="mais_novas" @selected(request('ordem', 'mais_novas') === 'mais_novas')>Mais novas</option>
+                            <option value="mais_antigas" @selected(request('ordem') === 'mais_antigas')>Mais antigas</option>
+                            <option value="dt_asc" @selected(request('ordem') === 'dt_asc')>DT menor primeiro</option>
+                            <option value="dt_desc" @selected(request('ordem') === 'dt_desc')>DT maior primeiro</option>
+                            <option value="itens_desc" @selected(request('ordem') === 'itens_desc')>Mais itens</option>
+                            <option value="itens_asc" @selected(request('ordem') === 'itens_asc')>Menos itens</option>
+                            <option value="picking_desc" @selected(request('ordem') === 'picking_desc')>Mais peças</option>
+                            <option value="picking_asc" @selected(request('ordem') === 'picking_asc')>Menos peças</option>
+                            <option value="saldo_desc" @selected(request('ordem') === 'saldo_desc')>Maior saldo</option>
+                            <option value="saldo_asc" @selected(request('ordem') === 'saldo_asc')>Menor saldo</option>
+                        </select>
+                    </div>
+                </div>
                 <div class="col-md-1 d-flex align-items-end gap-2">
                     <button type="submit" class="btn btn-primary w-100" data-bs-toggle="tooltip" title="Aplicar filtros">
                         <i class="mdi mdi-magnify"></i>
                     </button>
-                    @if(request()->hasAny(['fo','transportadora','status','data_inicio','data_fim']))
-                        <a href="{{ route('demandas.index') }}" class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Limpar filtros">
+                    @if(request()->hasAny(['fo','transportadora','status','data_inicio','data_fim','ordem']))
+                        <a href="{{ !empty($modoOperacional) ? route('demandas.operacional') : route('demandas.index') }}" class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Limpar filtros">
                             <i class="mdi mdi-close"></i>
                         </a>
                     @endif
@@ -140,8 +181,13 @@
                                     <i class="mdi mdi-pound me-1"></i> DT
                                 </th>
                                 <th class="px-4 py-3 text-muted small fw-semibold">
-                                    <i class="mdi mdi-truck-outline me-1"></i> Transportadora
+                                    <i class="mdi mdi-map-marker-outline me-1"></i> Stage
                                 </th>
+                                @if(empty($modoOperacional))
+                                    <th class="px-4 py-3 text-muted small fw-semibold">
+                                        <i class="mdi mdi-truck-outline me-1"></i> Transportadora
+                                    </th>
+                                @endif
                                 <th class="px-4 py-3 text-muted small fw-semibold text-center">Itens c/ sobra</th>
                                 <th class="px-4 py-3 text-muted small fw-semibold">
                                     <i class="mdi mdi-flag-outline me-1"></i> Status
@@ -201,7 +247,32 @@
                                     <td class="px-4 py-3 fw-semibold">
                                         <a href="#" data-bs-toggle="modal" data-bs-target="#modalDistribuicao{{ $d->id }}">{{ $d->fo }}</a>
                                     </td>
-                                    <td class="px-4 py-3">{{ $d->transportadora }}</td>
+                                    <td class="px-4 py-3" style="min-width:220px;">
+                                        <div class="input-group input-group-sm">
+                                            <input
+                                                type="text"
+                                                name="stage"
+                                                form="stageForm{{ $d->id }}"
+                                                class="form-control"
+                                                value="{{ $d->stage }}"
+                                                maxlength="100"
+                                                placeholder="Stage"
+                                                aria-label="Stage da DT {{ $d->fo }}"
+                                            >
+                                            <button
+                                                type="submit"
+                                                form="stageForm{{ $d->id }}"
+                                                class="btn btn-outline-primary"
+                                                data-bs-toggle="tooltip"
+                                                title="Salvar Stage"
+                                            >
+                                                <i class="mdi mdi-content-save-outline"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                    @if(empty($modoOperacional))
+                                        <td class="px-4 py-3">{{ $d->transportadora }}</td>
+                                    @endif
                                     <td class="px-4 py-3 text-center">
                                         <span class="badge bg-light text-dark border">{{ $d->total_itens_com_sobra ?? 0 }}</span>
                                     </td>
@@ -224,7 +295,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="8" class="text-center py-5">
+                                    <td colspan="{{ !empty($modoOperacional) ? 7 : 8 }}" class="text-center py-5">
                                         <div class="text-muted">
                                             <i class="mdi mdi-package-variant-closed display-4 d-block mb-3 opacity-25"></i>
                                             <p class="mb-0">Nenhuma demanda encontrada</p>
@@ -237,6 +308,12 @@
                     </table>
                 </div>
             </form>
+            @foreach($demandas as $d)
+                <form id="stageForm{{ $d->id }}" action="{{ route('demandas.updateStage', $d->id) }}" method="POST" class="d-none">
+                    @csrf
+                    @method('PATCH')
+                </form>
+            @endforeach
         </div>
 
         @if($demandas->hasPages())
@@ -252,9 +329,12 @@
 
 @foreach($demandas as $d)
     @php
+        $totalSkusPicking = (int) ($d->total_skus_picking ?? 0);
         $totalPicking = (int) round((float) ($d->total_pecas_picking ?? 0));
         $totalDistribuido = (int) ($d->total_pecas_distribuidas ?? 0);
+        $totalSkusDistribuidos = (int) $d->distribuicoes->sum('quantidade_skus');
         $restante = max(0, $totalPicking - $totalDistribuido);
+        $skusRestantes = max(0, $totalSkusPicking - $totalSkusDistribuidos);
     @endphp
     <div class="modal fade" id="modalDistribuicao{{ $d->id }}" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-scrollable">
@@ -265,9 +345,10 @@
                 </div>
                 <div class="modal-body">
                     <div class="row g-3 mb-3">
-                        <div class="col-md-4"><div class="small text-muted">Total Picking</div><div class="fw-semibold">{{ $totalPicking }}</div></div>
-                        <div class="col-md-4"><div class="small text-muted">Já Distribuído</div><div class="fw-semibold">{{ $totalDistribuido }}</div></div>
-                        <div class="col-md-4"><div class="small text-muted">Saldo</div><div class="fw-semibold">{{ $restante }}</div></div>
+                        <div class="col-md-3"><div class="small text-muted">Total Picking</div><div class="fw-semibold">{{ $totalPicking }}</div></div>
+                        <div class="col-md-3"><div class="small text-muted">Qtd SKUs</div><div class="fw-semibold">{{ $totalSkusPicking }}</div></div>
+                        <div class="col-md-3"><div class="small text-muted">Já Distribuído</div><div class="fw-semibold">{{ $totalDistribuido }}</div></div>
+                        <div class="col-md-3"><div class="small text-muted">Saldo</div><div class="fw-semibold">{{ $restante }} peças / {{ $skusRestantes }} SKUs</div></div>
                     </div>
 
                     @php
@@ -299,13 +380,17 @@
 
                     <form method="POST" action="{{ route('demandas.distribuir', $d->id) }}" class="row g-2 mb-3">
                         @csrf
-                        <div class="col-md-6">
+                        <div class="col-md-5">
                             <label class="form-label small text-muted mb-1">Nome do separador</label>
                             <input type="text" name="separador_nome" class="form-control form-control-sm" required>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <label class="form-label small text-muted mb-1">Qtd peças</label>
                             <input type="number" name="quantidade_pecas" min="1" max="{{ $restante }}" class="form-control form-control-sm" required>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small text-muted mb-1">Qtd SKUs</label>
+                            <input type="number" name="quantidade_skus" min="1" max="{{ $skusRestantes }}" class="form-control form-control-sm" required>
                         </div>
                         <div class="col-md-2 d-flex align-items-end">
                             <button type="submit" class="btn btn-sm btn-primary w-100">Distribuir</button>
@@ -322,6 +407,7 @@
                                 return [
                                     'separador_nome' => $itens->first()->separador_nome,
                                     'quantidade_pecas' => (int) $itens->sum('quantidade_pecas'),
+                                    'quantidade_skus' => (int) $itens->sum('quantidade_skus'),
                                     'inicio' => $inicio ? \Carbon\Carbon::parse($inicio) : null,
                                     'fim' => $fim ? \Carbon\Carbon::parse($fim) : null,
                                     'resultado' => $resultado,
@@ -336,6 +422,7 @@
                                 <tr>
                                     <th>Separador</th>
                                     <th class="text-end">Qtd peças</th>
+                                    <th class="text-end">Qtd SKUs</th>
                                     <th class="text-end">Início</th>
                                     <th class="text-end">Fim</th>
                                     <th class="text-end">Tempo</th>
@@ -348,6 +435,7 @@
                                     <tr>
                                         <td>{{ $dist['separador_nome'] }}</td>
                                         <td class="text-end">{{ $dist['quantidade_pecas'] }}</td>
+                                        <td class="text-end">{{ $dist['quantidade_skus'] }}</td>
                                         <td class="text-end">{{ $dist['inicio']?->format('d/m/Y H:i') ?? '-' }}</td>
                                         <td class="text-end">{{ $dist['fim']?->format('d/m/Y H:i') ?? '-' }}</td>
                                         <td class="text-end">
@@ -384,7 +472,7 @@
                                         </td>
                                     </tr>
                                 @empty
-                                    <tr><td colspan="7" class="text-center text-muted">Sem distribuição registrada.</td></tr>
+                                    <tr><td colspan="8" class="text-center text-muted">Sem distribuição registrada.</td></tr>
                                 @endforelse
                             </tbody>
                         </table>

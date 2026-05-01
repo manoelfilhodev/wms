@@ -52,6 +52,20 @@ class DashboardTvController extends Controller
             ->limit(5)
             ->get();
 
+        $rankingSkus = DB::table('_tb_demanda_distribuicoes as dd')
+            ->join('_tb_demanda as d', 'd.id', '=', 'dd.demanda_id')
+            ->where('d.possui_sobra', true)
+            ->whereDate('dd.finalizado_em', '>=', $inicioSemana->toDateString())
+            ->whereNotNull('dd.finalizado_em')
+            ->whereNotNull('dd.separador_nome')
+            ->whereRaw("TRIM(dd.separador_nome) <> ''")
+            ->selectRaw('dd.separador_nome as nome, SUM(COALESCE(dd.quantidade_skus, 0)) as total')
+            ->groupBy('dd.separador_nome')
+            ->havingRaw('SUM(COALESCE(dd.quantidade_skus, 0)) > 0')
+            ->orderByDesc('total')
+            ->limit(5)
+            ->get();
+
         $diasMes = [];
         $separacoesDia = [];
         $parciaisDia = [];
@@ -68,14 +82,14 @@ class DashboardTvController extends Controller
                 ->count();
         }
 
-        $turnos = collect(['MANHA', 'TARDE', 'NOITE'])->map(function ($turno) {
+        $turnos = collect($this->turnosOperacionais())->map(function ($turno, $codigo) {
             $q = Demanda::query()
                 ->where('possui_sobra', true)
                 ->whereNotNull('separacao_iniciada_em');
 
-            if ($turno === 'MANHA') {
+            if ($codigo === 'T1') {
                 $q->whereRaw("TIME(separacao_iniciada_em) BETWEEN '06:00:00' AND '13:59:59'");
-            } elseif ($turno === 'TARDE') {
+            } elseif ($codigo === 'T2') {
                 $q->whereRaw("TIME(separacao_iniciada_em) BETWEEN '14:00:00' AND '21:59:59'");
             } else {
                 $q->where(function ($qq) {
@@ -85,7 +99,7 @@ class DashboardTvController extends Controller
             }
 
             return [
-                'turno' => $turno,
+                'turno' => $turno['label'],
                 'total' => (clone $q)->count(),
             ];
         });
@@ -94,11 +108,21 @@ class DashboardTvController extends Controller
             'status' => $status,
             'tempoMedioMin' => $tempoMedioMin ? round((float) $tempoMedioMin, 1) : 0,
             'ranking' => $ranking,
+            'rankingSkus' => $rankingSkus,
             'diasMes' => $diasMes,
             'separacoesDia' => $separacoesDia,
             'parciaisDia' => $parciaisDia,
             'turnoLabels' => $turnos->pluck('turno')->values(),
             'turnoValues' => $turnos->pluck('total')->values(),
+        ];
+    }
+
+    private function turnosOperacionais(): array
+    {
+        return [
+            'T1' => ['label' => 'Turno A (T1)', 'periodo' => '06h as 14h'],
+            'T2' => ['label' => 'Turno B (T2)', 'periodo' => '14h as 22h'],
+            'T3' => ['label' => 'Turno C (T3)', 'periodo' => '22h as 06h'],
         ];
     }
 }

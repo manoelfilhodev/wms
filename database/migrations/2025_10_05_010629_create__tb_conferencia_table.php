@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('_tb_conferencia', function (Blueprint $table) {
             $table->integer('id', true);
-            $table->integer('unidade_id')->index('idx_conferencia_unidade');
-            $table->integer('material_id')->index('idx_conferencia_material');
+            $table->integer('unidade_id')->index();
+            $table->integer('material_id')->index();
             $table->integer('quantidade_conferida')->nullable();
             $table->enum('tipo', ['entrada', 'saida'])->nullable();
-            $table->integer('usuario_id')->nullable()->index('usuario_id');
+            $table->integer('usuario_id')->nullable()->index();
             $table->timestamp('data_conferencia')->useCurrent();
         });
     }

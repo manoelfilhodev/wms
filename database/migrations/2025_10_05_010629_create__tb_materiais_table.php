@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('_tb_materiais', function (Blueprint $table) {
             $table->integer('id', true);
-            $table->integer('unidade_id')->index('idx_material_unidade');
-            $table->string('sku', 50)->index('idx_material_sku');
+            $table->integer('unidade_id')->index();
+            $table->string('sku', 50)->index();
             $table->string('descricao')->nullable();
-            $table->integer('categoria_id')->nullable()->index('categoria_id');
+            $table->integer('categoria_id')->nullable()->index();
             $table->integer('quantidade_estoque')->nullable()->default(0);
             $table->integer('lastro')->default(0);
             $table->integer('camada')->default(0);

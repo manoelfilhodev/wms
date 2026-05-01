@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('_tb_user_logs', function (Blueprint $table) {
             $table->integer('id', true);
-            $table->integer('usuario_id')->index('usuario_id');
-            $table->integer('unidade_id')->index('unidade_id');
+            $table->integer('usuario_id')->index();
+            $table->integer('unidade_id')->index();
             $table->string('acao')->nullable();
             $table->text('dados')->nullable();
             $table->string('ip_address', 45)->nullable();

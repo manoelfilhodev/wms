@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('_tb_saldo_estoque', function (Blueprint $table) {
             $table->integer('id', true);
             $table->integer('sku_id');
-            $table->integer('posicao_id')->index('posicao_id');
+            $table->integer('posicao_id')->index();
             $table->integer('quantidade')->default(0);
             $table->integer('unidade_id')->default(2);
             $table->dateTime('created_at')->nullable();

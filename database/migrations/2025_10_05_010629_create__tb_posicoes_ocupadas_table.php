@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('_tb_posicoes_ocupadas', function (Blueprint $table) {
             $table->integer('id', true);
-            $table->integer('posicao_id')->unique('unica_ocupacao');
+            $table->integer('posicao_id')->unique();
             $table->integer('usuario_id');
             $table->dateTime('ocupada_em')->nullable()->useCurrent();
             $table->dateTime('expiracao')->nullable();
