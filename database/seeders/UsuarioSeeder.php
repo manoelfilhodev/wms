@@ -19,12 +19,22 @@ class UsuarioSeeder extends Seeder
         if (! $unidadeId) {
             $unidadeId = DB::table('_tb_unidades')->min('id');
         }
+        if (! $unidadeId) {
+            $unidadeId = DB::table('_tb_unidades')->insertGetId([
+                'nome' => 'Unidade Central',
+                'endereco' => 'Rua Principal, 123',
+                'cidade' => 'São Paulo',
+                'estado' => 'SP',
+                'status' => 'ativo',
+                'created_at' => now(),
+            ]);
+        }
 
         $usuarios = [
             [
                 'nome' => 'Admin Teste',
                 'email' => 'admin@wms.com',
-                'password' => Hash::make('admin123'),
+                'password' => Hash::make('admin123!@'),
                 'tipo' => 'admin',
                 'tipo_usuario' => 'admin',
                 'nivel' => 'Admin',

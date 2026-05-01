@@ -37,7 +37,7 @@ class DashboardTvController extends Controller
         $tempoMedioMin = (clone $base)
             ->whereNotNull('separacao_iniciada_em')
             ->whereNotNull('separacao_finalizada_em')
-            ->selectRaw('AVG((julianday(separacao_finalizada_em) - julianday(separacao_iniciada_em)) * 1440) as media')
+            ->selectRaw('AVG('.$this->tempoDiffMinExpr('separacao_iniciada_em', 'separacao_finalizada_em').') as media')
             ->value('media');
 
         $ranking = DB::table('_tb_demanda_distribuicoes as dd')
@@ -124,5 +124,15 @@ class DashboardTvController extends Controller
             'T2' => ['label' => 'Turno B (T2)', 'periodo' => '14h as 22h'],
             'T3' => ['label' => 'Turno C (T3)', 'periodo' => '22h as 06h'],
         ];
+    }
+
+    private function tempoDiffMinExpr(string $colInicio, string $colFim): string
+    {
+        $driver = DB::connection()->getDriverName();
+        if ($driver === 'sqlite') {
+            return "(julianday({$colFim}) - julianday({$colInicio})) * 1440";
+        }
+
+        return "TIMESTAMPDIFF(MINUTE, {$colInicio}, {$colFim})";
     }
 }
