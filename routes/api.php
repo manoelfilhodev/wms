@@ -14,6 +14,7 @@ use App\Http\Controllers\Setores\ArmazenagemController;
 use App\Http\Controllers\ContagemLivreController;
 use App\Http\Controllers\Api\V1\SaldoEstoqueController;
 use App\Http\Controllers\Api\V1\MeController;
+use App\Http\Controllers\Api\V1\ApontamentoPaleteStretchApiController;
 
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -33,6 +34,8 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     Route::get('/saldo-estoque', [SaldoEstoqueController::class, 'index']);
     Route::get('/saldo-estoque/{id}', [SaldoEstoqueController::class, 'show'])->whereNumber('id');
     Route::match(['put', 'patch'], '/saldo-estoque/{id}', [SaldoEstoqueController::class, 'update'])->whereNumber('id');
+
+    Route::post('/apontamentos-paletes-stretch', [ApontamentoPaleteStretchApiController::class, 'store']);
 });
 
 Route::post('/v1/auth/login', [AuthController::class, 'apiLogin']);
@@ -133,4 +136,3 @@ Route::get('/demandas/{id}/historico', [DemandaController::class, 'historico']);
 
 Route::put('/demandas/{id}', [DemandaController::class, 'update'])->middleware('auth:sanctum');
 Route::post('/demandas/{id}/status', [DemandaController::class, 'atualizarStatus'])->middleware('auth:sanctum');
-
