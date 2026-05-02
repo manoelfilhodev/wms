@@ -681,6 +681,7 @@ public function dashboardOperacional()
     $mapFinalizadasOutroDia = $finalizadasOutroDia->pluck('total', 'dia');
     $seriesFinalizadasNoDia = $labels7->map(fn($dia) => (int) ($mapFinalizadasNoDia[$dia] ?? 0));
     $seriesFinalizadasOutroDia = $labels7->map(fn($dia) => (int) ($mapFinalizadasOutroDia[$dia] ?? 0));
+    $apontamentosStretchPorHora = $this->getApontamentosStretchPorHora($data, $turno);
 
     $dadosGraficos = [
         'status' => [
@@ -705,6 +706,7 @@ public function dashboardOperacional()
             'finalizadas_no_dia' => $seriesFinalizadasNoDia->values(),
             'finalizadas_outro_dia' => $seriesFinalizadasOutroDia->values(),
         ],
+        'stretchPorHora' => $apontamentosStretchPorHora,
     ];
 
     return view('demandas.dashboard_operacional', [
@@ -719,6 +721,52 @@ public function dashboardOperacional()
         'resumoOperacional' => $resumoOperacional,
         'dadosGraficos' => $dadosGraficos,
     ]);
+}
+
+private function getApontamentosStretchPorHora(string $data, ?string $turno): array
+{
+    if (! Schema::hasTable('_tb_apontamentos_paletes_stretch')) {
+        return [
+            'labels' => [],
+            'values' => [],
+            'total' => 0,
+        ];
+    }
+
+    if ($turno) {
+        [$inicio, $fim] = $this->intervaloTurno($data, $turno);
+    } else {
+        $inicio = Carbon::parse($data)->startOfDay();
+        $fim = Carbon::parse($data)->endOfDay();
+    }
+
+    $labels = collect();
+    $cursor = $inicio->copy()->startOfHour();
+
+    while ($cursor <= $fim) {
+        $labels->push($cursor->format('H:00'));
+        $cursor->addHour();
+    }
+
+    $hourExpr = $this->hourExpr('apontado_em_servidor');
+    $dados = DB::table('_tb_apontamentos_paletes_stretch')
+        ->whereNull('deleted_at')
+        ->where('status', 'APONTADO')
+        ->whereBetween('apontado_em_servidor', [$inicio, $fim])
+        ->selectRaw("{$hourExpr} as hora")
+        ->selectRaw('COUNT(*) as total')
+        ->groupBy('hora')
+        ->orderBy('hora')
+        ->get()
+        ->mapWithKeys(fn($item) => [str_pad((string) $item->hora, 2, '0', STR_PAD_LEFT).':00' => (int) $item->total]);
+
+    $values = $labels->map(fn($label) => (int) ($dados[$label] ?? 0));
+
+    return [
+        'labels' => $labels->values(),
+        'values' => $values->values(),
+        'total' => (int) $values->sum(),
+    ];
 }
 
 public function relatoriosOperacional()
@@ -988,6 +1036,12 @@ private function dateExpr(string $column): string
 {
     $driver = DB::connection()->getDriverName();
     return $driver === 'sqlite' ? "date({$column})" : "DATE({$column})";
+}
+
+private function hourExpr(string $column): string
+{
+    $driver = DB::connection()->getDriverName();
+    return $driver === 'sqlite' ? "strftime('%H', {$column})" : "HOUR({$column})";
 }
 
 }

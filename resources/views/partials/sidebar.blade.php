@@ -36,6 +36,13 @@
                 </li>
 
                 <li class="side-nav-item">
+                    <a href="{{ route('stretch.apontar') }}" class="side-nav-link {{ request()->routeIs('stretch.*') ? 'active' : '' }}">
+                        <i class="mdi mdi-barcode-scan"></i>
+                        <span> Palete Stretch </span>
+                    </a>
+                </li>
+
+                <li class="side-nav-item">
                     <a href="{{ route('painel.tv') }}" target="_blank" rel="noopener" class="side-nav-link">
                         <i class="mdi mdi-television-play"></i>
                         <span> Painel TV </span>

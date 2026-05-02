@@ -100,6 +100,18 @@
             </div>
         </div>
 
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                    <h6 class="mb-0">Apontamentos Stretch por hora</h6>
+                    <span class="badge bg-light text-dark border">
+                        Total: {{ $dadosGraficos['stretchPorHora']['total'] ?? 0 }}
+                    </span>
+                </div>
+                <div class="chart-box chart-box-wide"><canvas id="chartStretchHora"></canvas></div>
+            </div>
+        </div>
+
         <div class="row g-3 mb-4">
             <div class="col-lg-6">
                 <div class="card border-0 shadow-sm h-100">
@@ -178,6 +190,10 @@
             height: 260px;
             overflow: hidden;
         }
+
+        .chart-box-wide {
+            height: 300px;
+        }
     </style>
     <script>
         const dadosGraficos = @json($dadosGraficos);
@@ -251,6 +267,45 @@
                 plugins: [ChartDataLabels]
             });
         }
+
+        renderChart('chartStretchHora', {
+            type: 'bar',
+            data: {
+                labels: dadosGraficos.stretchPorHora.labels,
+                datasets: [{
+                    label: 'Apontamentos',
+                    data: dadosGraficos.stretchPorHora.values,
+                    backgroundColor: '#38bdf8',
+                    borderRadius: 4,
+                    maxBarThickness: 42
+                }]
+            },
+            options: {
+                ...commonOptions,
+                plugins: {
+                    ...commonOptions.plugins,
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => `Apontamentos: ${ctx.parsed.y ?? ctx.raw}`
+                        }
+                    }
+                },
+                scales: {
+                    ...commonOptions.scales,
+                    x: {
+                        ...commonOptions.scales.x,
+                        title: {
+                            display: true,
+                            text: 'Hora',
+                            color: baseTicks
+                        }
+                    }
+                }
+            }
+        });
 
         renderChart('chartStatus', {
             type: 'doughnut',

@@ -36,7 +36,8 @@ use App\Http\Controllers\{
     RelatorioKitController,
     ExpedicaoController,
     TransferenciaController,
-    TransferenciaEtiquetaController
+    TransferenciaEtiquetaController,
+    ApontamentoPaleteStretchController
 };
 
 use App\Http\Controllers\Setores\{
@@ -102,6 +103,11 @@ Route::get('/kits/pendencias', [App\Http\Controllers\KitMontagemController::clas
 |--------------------------------------------------------------------------
 */
 require __DIR__ . '/web/demandas.php';
+
+Route::prefix('stretch')->middleware('auth')->group(function () {
+    Route::get('/apontar', [ApontamentoPaleteStretchController::class, 'index'])->name('stretch.apontar');
+    Route::post('/apontar', [ApontamentoPaleteStretchController::class, 'store'])->name('stretch.apontar.store');
+});
 
 // routes/web.php
 Route::prefix('kits')->middleware('auth')->group(function () {
