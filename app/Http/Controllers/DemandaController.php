@@ -581,7 +581,9 @@ public function finalizarSeparacao(Request $request, $id)
 public function dashboardOperacional()
 {
     $turno = $this->normalizarTurno(request('turno'));
-    $data = Carbon::today()->toDateString();
+    $data = request('data')
+        ? Carbon::parse(request('data'))->toDateString()
+        : Carbon::today()->toDateString();
     $base = Demanda::query()->where('possui_sobra', true);
     $base = $this->aplicarFiltrosOperacionais($base, $turno, $data);
     $separandoOutrasDatas = $this->getSeparandoDeOutrasDatas($turno, $data);
@@ -608,28 +610,29 @@ public function dashboardOperacional()
         ->whereNotNull('dd.finalizado_em')
         ->whereNotNull('dd.separador_nome')
         ->whereRaw("TRIM(dd.separador_nome) <> ''")
-        ->whereDate('d.created_at', $data)
-        ->whereDate('dd.created_at', $data)
-        ->when($turno, function ($q) use ($turno) {
-            $this->aplicarFiltroTurnoSql($q, 'dd.created_at', $turno);
-        })
         ->groupBy('dd.separador_nome')
         ->selectRaw('dd.separador_nome as separador_nome')
         ->selectRaw('COUNT(*) as total_separacoes')
         ->selectRaw("AVG(".$this->tempoDiffMinExpr('dd.created_at', 'dd.finalizado_em').") as tempo_medio_min")
         ->orderByDesc('total_separacoes')
-        ->limit(10)
-        ->get();
+        ->limit(10);
+
+    if ($turno) {
+        [$inicioTurno, $fimTurno] = $this->intervaloTurno($data, $turno);
+        $ranking->whereBetween('dd.finalizado_em', [$inicioTurno, $fimTurno]);
+    } else {
+        $ranking->whereDate('dd.finalizado_em', $data);
+    }
+
+    $ranking = $ranking->get();
 
     $comparativoTurno = collect(array_keys($this->turnosOperacionais()))->map(function ($nomeTurno) use ($data) {
+        [$inicioTurno, $fimTurno] = $this->intervaloTurno($data, $nomeTurno);
         $q = Demanda::query()
             ->where('possui_sobra', true)
-            ->whereDate('created_at', $data)
             ->whereNotNull('separacao_iniciada_em')
-            ->whereNotNull('separacao_finalizada_em');
-        $this->aplicarFiltroTurnoSql($q, 'separacao_iniciada_em', $nomeTurno);
-
-        $q->whereDate('separacao_iniciada_em', $data);
+            ->whereNotNull('separacao_finalizada_em')
+            ->whereBetween('separacao_finalizada_em', [$inicioTurno, $fimTurno]);
 
         $tempo = (clone $q)
             ->selectRaw("AVG(".$this->tempoDiffMinExpr('separacao_iniciada_em', 'separacao_finalizada_em').") as media")

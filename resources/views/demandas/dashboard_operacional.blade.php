@@ -20,8 +20,8 @@
             <div class="card-body">
                 <form method="GET" action="{{ route('demandas.dashboardOperacional') }}" class="row g-2">
                     <div class="col-md-3">
-                        <label class="form-label small text-muted mb-1">Data atual</label>
-                        <input type="date" value="{{ $dataSelecionada }}" class="form-control form-control-sm" readonly>
+                        <label class="form-label small text-muted mb-1">Data operacional</label>
+                        <input type="date" name="data" value="{{ $dataSelecionada }}" class="form-control form-control-sm">
                     </div>
                     <div class="col-md-3">
                         <label class="form-label small text-muted mb-1">Turno</label>
@@ -39,7 +39,7 @@
                     </div>
                 </form>
                 <div class="d-flex flex-wrap gap-3 mt-3 small text-muted">
-                    <span>DTs geradas hoje: <strong class="text-body">{{ $resumoOperacional['geradas'] }}</strong></span>
+                    <span>DTs geradas na data: <strong class="text-body">{{ $resumoOperacional['geradas'] }}</strong></span>
                     <span>Entram no picking: <strong class="text-body">{{ $resumoOperacional['picking'] }}</strong></span>
                     @if ($resumoOperacional['fora_picking'] > 0)
                         <span>Fora do picking: <strong
