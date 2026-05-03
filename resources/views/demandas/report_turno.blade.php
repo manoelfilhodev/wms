@@ -15,7 +15,11 @@
             </div>
         </div>
         <div class="d-flex gap-2">
-            <a href="{{ route('demandas.relatorios') }}" class="btn btn-outline-secondary btn-sm">Voltar relatórios</a>
+            @if(Auth::user()?->tipo === 'operador')
+                <a href="{{ route('painel.operador') }}" class="btn btn-outline-secondary btn-sm">Voltar ao menu</a>
+            @else
+                <a href="{{ route('demandas.relatorios') }}" class="btn btn-outline-secondary btn-sm">Voltar relatórios</a>
+            @endif
             <button type="button" class="btn btn-primary btn-sm" onclick="window.print()">
                 <i class="mdi mdi-printer me-1"></i> Imprimir
             </button>

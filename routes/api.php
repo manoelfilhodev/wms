@@ -47,8 +47,6 @@ Route::prefix('armazenagem')->group(function () {
     Route::get('/buscarPosicoes', [ArmazenagemController::class, 'buscarPosicoes']);
     Route::post('/store', [ArmazenagemController::class, 'store'])->middleware('auth:sanctum');
     Route::post('/store-api', [ArmazenagemController::class, 'storeApi'])->middleware('auth:sanctum');
-
-
 });
 
 
@@ -97,6 +95,8 @@ Route::get('/apontamentos/ultimos', [KitMontagemController::class, 'apiUltimosAp
 Route::post('/apontamento', [KitMontagemController::class, 'apiApontarPorEtiqueta'])->middleware('auth:sanctum');
 
 Route::post('/login-microsoft', [MicrosoftApiController::class, 'loginFromApp']);
+Route::post('/auth/microsoft', [MicrosoftApiController::class, 'loginFromApp']);
+
 
 // Login API
 Route::post('/login', [AuthController::class, 'apiLogin']);
@@ -108,11 +108,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/recebimentos', [RecebimentoApiController::class, 'listar']);
     Route::get('/recebimentos/{id}', [RecebimentoApiController::class, 'detalhes']);
     Route::post('/recebimentos/{id}/foto-inicio', [RecebimentoApiController::class, 'uploadFotoInicio']);
-    
+
     Route::post('/recebimentos/{id}/foto-fim', [RecebimentoApiController::class, 'uploadFotoFim']);
-    
+
     Route::post('/recebimentos/{id}/assinatura-fim', [RecebimentoApiController::class, 'uploadAssinaturaFim']);
-    
+
     Route::post('/recebimentos/{id}/finalizar', [RecebimentoApiController::class, 'finalizarConferencia']);
 
 

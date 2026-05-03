@@ -20,6 +20,10 @@ class DashboardController extends Controller
 
     public function index()
 {
+    if (auth()->user()?->tipo === 'operador') {
+        return redirect()->route('painel.operador');
+    }
+
     if (Schema::hasTable('_tb_demanda')) {
         return redirect()->route('demandas.dashboardOperacional');
     }

@@ -45,9 +45,9 @@ class DemandaPerfilMiddleware
 
     private function isAdmOperacional(string $tipo, string $nivel): bool
     {
-        return str_contains($tipo, 'operacional')
+        return $tipo === 'operador'
+            || str_contains($tipo, 'operacional')
             || str_contains($nivel, 'operacional')
             || str_contains($nivel, 'adm_operacional');
     }
 }
-

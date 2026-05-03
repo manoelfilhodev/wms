@@ -1,6 +1,7 @@
 @php
     $segments = Request::segments();
     $title = ucfirst(end($segments));
+    $isOperatorLayout = Auth::check() && Auth::user()->tipo === 'operador';
 @endphp
 
 <!DOCTYPE html>
@@ -34,15 +35,32 @@
 
         .top-bar-operador span { color: #fff; font-weight: bold; }
         .top-bar-operador .btn { font-size: 0.9rem; }
+
+        body.operator-fullscreen .content-page {
+            margin-left: 0 !important;
+            width: 100% !important;
+        }
+
+        body.operator-fullscreen .content {
+            min-height: calc(100vh - 70px);
+        }
+
+        body.operator-fullscreen .container-fluid {
+            max-width: 100%;
+        }
+
+        body.operator-fullscreen .footer {
+            left: 0 !important;
+        }
     </style>
 
     @yield('head')
 </head>
 
-<body class="loading" data-layout-config='{"leftSideBarTheme":"dark","layoutBoxed":false,"leftSidebarCondensed":false,"darkMode":false}'>
+<body class="loading {{ $isOperatorLayout ? 'operator-fullscreen' : '' }}" data-layout-config='{"leftSideBarTheme":"dark","layoutBoxed":false,"leftSidebarCondensed":false,"darkMode":false}'>
     <div class="wrapper">
         @auth
-            @if(Auth::user()->tipo !== 'operador')
+            @if(! $isOperatorLayout)
                 @include('partials.sidebar')
             @endif
         @endauth
@@ -50,7 +68,7 @@
         <div class="content-page">
             <div class="content">
                 @auth
-                    @if(Auth::user()->tipo !== 'operador')
+                    @if(! $isOperatorLayout)
                         @include('partials.header')
                     @else
                         <div class="top-bar-operador">

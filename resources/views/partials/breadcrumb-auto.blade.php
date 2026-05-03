@@ -1,13 +1,16 @@
 @php
     $segments = Request::segments();
     $title = ucfirst(end($segments));
+    $homeUrl = Auth::check() && Auth::user()->tipo === 'operador'
+        ? route('painel.operador')
+        : url('/dashboard');
 @endphp
 <div class="row">
 <div class="col-12">
 <div class="page-title-box">
     <div class="page-title-left">
         <ol class="breadcrumb m-0">
-            <li class="breadcrumb-item"><a href="{{ url('/dashboard') }}">Início</a></li>
+            <li class="breadcrumb-item"><a href="{{ $homeUrl }}">Início</a></li>
 
             @foreach ($segments as $index => $segment)
                 @php

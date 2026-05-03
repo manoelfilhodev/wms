@@ -21,7 +21,8 @@ class User extends Authenticatable
         'unidade_id',
         'tipo',
         'status',
-        'nivel'
+        'nivel',
+        'azure_id'
     ];
 
     protected $hidden = [
@@ -34,4 +35,3 @@ class User extends Authenticatable
     return $this->hasMany(ContagemItem::class, 'usuario_id', 'id_user');
 }
 }
-

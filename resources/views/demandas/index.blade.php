@@ -1,6 +1,10 @@
 @extends('layouts.app')
 
 @section('content')
+@php
+    $isOperator = Auth::user()?->tipo === 'operador';
+@endphp
+
 <div class="container-fluid px-4 py-3">
     @include('partials.breadcrumb-auto')
     
@@ -19,24 +23,28 @@
             <a href="{{ route('demandas.operacional') }}" class="btn btn-outline-danger btn-sm" data-bs-toggle="tooltip" title="Ver somente DTs com sobra">
                 <i class="mdi mdi-filter-variant"></i> Operacional
             </a>
-            <a href="{{ route('demandas.dashboardOperacional') }}" class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" title="Dashboard de produtividade">
-                <i class="mdi mdi-chart-line"></i> Dashboard
-            </a>
-            <a href="{{ route('demandas.relatorios') }}" class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" title="Relatórios operacionais">
-                <i class="mdi mdi-file-chart-outline"></i> Relatórios
-            </a>
+            @if(! $isOperator)
+                <a href="{{ route('demandas.dashboardOperacional') }}" class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" title="Dashboard de produtividade">
+                    <i class="mdi mdi-chart-line"></i> Dashboard
+                </a>
+                <a href="{{ route('demandas.relatorios') }}" class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" title="Relatórios operacionais">
+                    <i class="mdi mdi-file-chart-outline"></i> Relatórios
+                </a>
+            @endif
             <a href="{{ route('demandas.identificacaoA4') }}" class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" title="Imprimir identificação A4">
                 <i class="mdi mdi-printer-outline"></i> Identificação
             </a>
-            <a href="{{ route('demandas.create') }}" class="btn btn-primary btn-sm" data-bs-toggle="tooltip" title="Lançar nova demanda">
-                <i class="mdi mdi-plus me-1"></i> Nova
-            </a>
-            <a href="{{ route('demandas.import.view') }}" class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" title="Importar via Excel">
-                <i class="mdi mdi-file-excel"></i>
-            </a>
-            <a href="{{ route('demandas.export', request()->query()) }}" class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" title="Exportar">
-                <i class="mdi mdi-download"></i>
-            </a>
+            @if(! $isOperator)
+                <a href="{{ route('demandas.create') }}" class="btn btn-primary btn-sm" data-bs-toggle="tooltip" title="Lançar nova demanda">
+                    <i class="mdi mdi-plus me-1"></i> Nova
+                </a>
+                <a href="{{ route('demandas.import.view') }}" class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" title="Importar via Excel">
+                    <i class="mdi mdi-file-excel"></i>
+                </a>
+                <a href="{{ route('demandas.export', request()->query()) }}" class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" title="Exportar">
+                    <i class="mdi mdi-download"></i>
+                </a>
+            @endif
             <button class="btn btn-outline-secondary btn-sm" onclick="location.reload()" data-bs-toggle="tooltip" title="Atualizar">
                 <i class="mdi mdi-refresh"></i>
             </button>

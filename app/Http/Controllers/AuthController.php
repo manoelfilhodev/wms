@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Services\DeviceAuthorizationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -10,9 +11,32 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    public function showLoginForm()
+    public function showLoginForm(Request $request)
     {
-        return view('auth.login');
+        $deviceId = $request->cookie(DeviceAuthorizationService::COOKIE_NAME)
+            ?: $request->cookie(DeviceAuthorizationService::LEGACY_COOKIE_NAME)
+            ?: (string) str()->uuid();
+        $deviceRegistered = app(DeviceAuthorizationService::class)
+            ->isActiveDeviceRegistered($deviceId, 'web');
+
+        return response()
+            ->view('auth.login', [
+                'deviceId' => $deviceId,
+                'showDeviceId' => ! $deviceRegistered,
+                'deviceCookieName' => DeviceAuthorizationService::COOKIE_NAME,
+                'legacyDeviceCookieName' => DeviceAuthorizationService::LEGACY_COOKIE_NAME,
+            ])
+            ->withCookie(cookie(
+                DeviceAuthorizationService::COOKIE_NAME,
+                $deviceId,
+                60 * 24 * 365,
+                '/',
+                null,
+                app()->environment('production'),
+                false,
+                false,
+                'lax'
+            ));
     }
 
     public function login(Request $request)
@@ -88,7 +112,7 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('login')->with('success', 'Voce saiu do sistema com sucesso!');
+        return redirect()->away($this->microsoftLogoutUrl());
     }
 
     /**
@@ -179,5 +203,13 @@ class AuthController extends Controller
             'navegador' => $request->header('User-Agent'),
             'created_at' => now(),
         ]);
+    }
+
+    private function microsoftLogoutUrl(): string
+    {
+        $postLogoutRedirectUri = config('services.microsoft.post_logout_redirect_uri', route('login'));
+
+        return 'https://login.microsoftonline.com/common/oauth2/v2.0/logout?post_logout_redirect_uri='
+            . urlencode($postLogoutRedirectUri);
     }
 }

@@ -15,25 +15,59 @@
     <meta name="theme-color" content="#111827">
 
     <style>
+        :root {
+            --operator-bg: #0b1421;
+            --operator-surface: #121f31;
+            --operator-surface-2: #17263a;
+            --operator-border: rgba(148, 163, 184, 0.18);
+            --operator-text: #f8fafc;
+            --operator-muted: #9fb1cc;
+            --operator-blue: #3b8de3;
+            --operator-blue-soft: rgba(59, 141, 227, 0.16);
+        }
+
         body {
-            background-color: #1e1e2f;
-            color: #fff;
+            background:
+                radial-gradient(circle at 10% 0%, rgba(59, 141, 227, 0.12), transparent 30%),
+                linear-gradient(180deg, #0b1421 0%, #09111d 100%);
+            color: var(--operator-text);
             display: flex;
             flex-direction: column;
             min-height: 100vh;
         }
 
+        .top-bar-operador {
+            min-height: 64px;
+            background: rgba(11, 20, 33, 0.96) !important;
+            border-bottom: 1px solid var(--operator-border);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.16) !important;
+        }
+
+        .top-bar-operador .btn {
+            border-color: rgba(148, 163, 184, 0.46);
+            color: #dbeafe;
+            background: rgba(18, 31, 49, 0.78);
+        }
+
+        .top-bar-operador .btn:hover,
+        .top-bar-operador .btn:focus {
+            border-color: rgba(59, 141, 227, 0.78);
+            color: #ffffff;
+            background: rgba(59, 141, 227, 0.18);
+        }
+
         footer {
-            background-color: #111827;
+            background-color: #09111d;
+            border-top: 1px solid var(--operator-border);
             padding: 0.75rem 1rem;
             text-align: center;
-            color: #ccc;
+            color: var(--operator-muted);
             font-size: 0.9rem;
             margin-top: auto;
         }
 
         .content-wrapper {
-            padding: 80px 20px 40px;
+            padding: clamp(1rem, 2.5vw, 2rem) 20px 40px;
         }
     </style>
 

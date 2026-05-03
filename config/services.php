@@ -39,6 +39,18 @@ return [
         'client_secret' => env('MICROSOFT_CLIENT_SECRET'),
         'redirect' => env('MICROSOFT_REDIRECT_URI'),
         'tenant_id' => env('MICROSOFT_TENANT_ID'),
+        'allowed_domains' => array_filter(array_map('trim', explode(',', env('MICROSOFT_ALLOWED_DOMAINS', '')))),
+        'auto_provision_users' => env('MICROSOFT_AUTO_PROVISION_USERS', false),
+        'default_role' => env('MICROSOFT_DEFAULT_ROLE', 'OPERADOR'),
+        'default_unidade_id' => env('MICROSOFT_DEFAULT_UNIDADE_ID'),
+        'post_logout_redirect_uri' => env('MICROSOFT_POST_LOGOUT_REDIRECT_URI', env('APP_URL') . '/login'),
+    ],
+
+    'graph' => [
+        'client_id' => env('MICROSOFT_CLIENT_ID'),
+        'client_secret' => env('MICROSOFT_CLIENT_SECRET'),
+        'redirect' => env('MICROSOFT_REDIRECT_URI'),
+        'tenant_id' => env('MICROSOFT_TENANT_ID'),
     ],
 
 ];

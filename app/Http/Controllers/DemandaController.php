@@ -580,6 +580,10 @@ public function finalizarSeparacao(Request $request, $id)
 
 public function dashboardOperacional()
 {
+    if (auth()->user()?->tipo === 'operador') {
+        return redirect()->route('painel.operador');
+    }
+
     $turno = $this->normalizarTurno(request('turno'));
     $data = request('data')
         ? Carbon::parse(request('data'))->toDateString()
@@ -771,6 +775,10 @@ private function getApontamentosStretchPorHora(string $data, ?string $turno): ar
 
 public function relatoriosOperacional()
 {
+    if (auth()->user()?->tipo === 'operador') {
+        return redirect()->route('painel.operador');
+    }
+
     $base = Demanda::query()->where('possui_sobra', true);
     $total = (clone $base)->count();
     $parcial = (clone $base)->where('separacao_resultado', 'PARCIAL')->count();

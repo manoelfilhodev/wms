@@ -37,7 +37,8 @@ use App\Http\Controllers\{
     ExpedicaoController,
     TransferenciaController,
     TransferenciaEtiquetaController,
-    ApontamentoPaleteStretchController
+    ApontamentoPaleteStretchController,
+    DispositivoAutorizadoController
 };
 
 use App\Http\Controllers\Setores\{
@@ -275,9 +276,6 @@ Route::get('/teste', function () {
     return 'Laravel funcionando';
 });
 
-Route::get('/login/microsoft', [MicrosoftController::class, 'redirectToProvider'])->name('login.microsoft');
-Route::get('/login/microsoft/callback', [MicrosoftController::class, 'handleProviderCallback']);
-
 Route::get('/etiquetas/html', [EtiquetaController::class, 'viewHtml']);
 
 
@@ -485,6 +483,13 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/usuarios/{id}/editar', [UserController::class, 'edit'])->name('usuarios.edit');
     Route::put('/usuarios/{id}', [UserController::class, 'update'])->name('usuarios.update');
     Route::delete('/usuarios/{id}', [UserController::class, 'destroy'])->name('usuarios.destroy');
+
+    Route::get('/dispositivos', [DispositivoAutorizadoController::class, 'index'])->name('dispositivos.index');
+    Route::get('/dispositivos/novo', [DispositivoAutorizadoController::class, 'create'])->name('dispositivos.create');
+    Route::post('/dispositivos', [DispositivoAutorizadoController::class, 'store'])->name('dispositivos.store');
+    Route::get('/dispositivos/{dispositivo}/editar', [DispositivoAutorizadoController::class, 'edit'])->name('dispositivos.edit');
+    Route::put('/dispositivos/{dispositivo}', [DispositivoAutorizadoController::class, 'update'])->name('dispositivos.update');
+    Route::patch('/dispositivos/{dispositivo}/status', [DispositivoAutorizadoController::class, 'toggle'])->name('dispositivos.toggle');
 });
 
 Route::prefix('setores')->middleware('auth')->group(function () {
